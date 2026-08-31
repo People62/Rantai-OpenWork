@@ -1,10 +1,19 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 
 import {
   ensureInspectorInstalled,
   publishInspectorOpencodeClient,
 } from "../src/app/lib/app-inspector";
 import { createClient } from "../src/app/lib/opencode";
+
+// Globals replaced here leak into every later test file in the same bun
+// process, so the originals are captured and put back when this file ends.
+const __original_window = Object.getOwnPropertyDescriptor(globalThis, "window");
+afterAll(() => {
+  if (__original_window) Object.defineProperty(globalThis, "window", __original_window);
+  else delete (globalThis as Record<string, unknown>).window;
+});
+
 
 describe("app inspector OpenCode client", () => {
   test("tracks the latest published client and clears it safely", () => {
