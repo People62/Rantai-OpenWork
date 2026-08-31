@@ -908,6 +908,10 @@ export function useWorkspaceRouteState(input: UseWorkspaceRouteStateInput) {
   // bootstrap; org-bound desktops should keep their sign-in gate instead.
   useEffect(() => {
     if (loading) return;
+    // A failed list read looks identical to "no workspaces yet" from here.
+    // Routing to first-run onboarding on a failure hides the cause and loses
+    // the workspaces the user actually has.
+    if (routeError) return;
     if (workspaces.length > 0) return;
     if (local.prefs.hasCompletedOnboarding) return;
     if (denAuth.status === "checking") return;
@@ -916,7 +920,7 @@ export function useWorkspaceRouteState(input: UseWorkspaceRouteStateInput) {
       if (readDenBootstrapConfig().source !== "default") return;
     }
     navigate("/welcome", { replace: true });
-  }, [denAuth.isSignedIn, denAuth.status, loading, local.prefs.hasCompletedOnboarding, navigate, workspaces.length]);
+  }, [denAuth.isSignedIn, denAuth.status, loading, local.prefs.hasCompletedOnboarding, navigate, routeError, workspaces.length]);
 
   // NOTE: Blueprint seeding was removed from the route.
   // It was firing `materializeBlueprintSessions` + a session re-fetch on every

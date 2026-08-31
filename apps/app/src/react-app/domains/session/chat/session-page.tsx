@@ -185,6 +185,7 @@ export type SessionPageProps = {
   };
   selectedWorkspaceRoot: string;
   selectedWorkspaceError?: string | null;
+  routeError?: string | null;
   runtimeWorkspaceId: string | null;
   /**
    * Pre-built OpenCode SDK base URL for the selected workspace's owning
@@ -802,13 +803,19 @@ export function SessionPage(props: SessionPageProps) {
   const providerCount = props.hasUsableModel ? 1 : props.providerConnectedIds.length;
   const messageCountVisible = props.selectedSessionId ? 1 : 0;
   const hasMainContentTakeover = Boolean(props.mainContentTakeover);
-  const showWorkspaceSetupEmptyState = props.workspaces.length === 0 && !props.selectedSessionId;
+  // An empty list because the fetch failed is not the same as having no
+  // workspaces yet; the failure owns the pane so the cause stays visible.
+  const showWorkspaceSetupEmptyState =
+    props.workspaces.length === 0 && !props.selectedSessionId && !props.routeError;
   const showStartupSkeleton =
     !bootOverlayVisible &&
     !props.primarySlot &&
     !hasMainContentTakeover &&
     !props.selectedSessionId &&
     !props.clientConnected &&
+    // A skeleton says "still loading". Once the route reports a failure that is
+    // no longer true, and leaving it up hides the only explanation we have.
+    !props.routeError &&
     props.startupPhase !== "sessionIndexReady" &&
     props.startupPhase !== "firstSessionReady" &&
     props.startupPhase !== "ready";
@@ -832,12 +839,15 @@ export function SessionPage(props: SessionPageProps) {
     props.selectedWorkspaceError?.trim() ||
     selectedWorkspaceConnectionMessage ||
     selectedWorkspaceGroupError ||
+    props.routeError?.trim() ||
     "";
   const showSelectedWorkspaceError = Boolean(selectedWorkspaceErrorMessage);
   const selectedWorkspaceErrorTitle =
-    props.selectedWorkspaceDisplay.workspaceType === "remote"
-      ? "Remote workspace unavailable"
-      : "OpenCode unavailable";
+    !props.selectedWorkspaceId && props.routeError?.trim()
+      ? "Workspace list unavailable"
+      : props.selectedWorkspaceDisplay.workspaceType === "remote"
+        ? "Remote workspace unavailable"
+        : "OpenCode unavailable";
 
   const reactSessionBaseUrl = props.opencodeBaseUrl?.trim() ?? "";
   const reactSessionToken =
