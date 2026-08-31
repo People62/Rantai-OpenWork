@@ -143,7 +143,14 @@ export default defineConfig({
     ...(headlessDenTarget
       ? {
           proxy: {
-            "/api/den": { target: headlessDenTarget, changeOrigin: true },
+            // The Den web app answers /api/den with a 307 to the API origin,
+            // which the browser would follow cross-origin. Strip the prefix so
+            // the proxy can target that API origin directly.
+            "/api/den": {
+              target: headlessDenTarget,
+              changeOrigin: true,
+              rewrite: (path) => path.replace(/^\/api\/den/, ""),
+            },
           },
         }
       : {}),

@@ -444,6 +444,17 @@ export function OrgOnboardingPage() {
     queryFn: () => denClient.listOrgs(),
   });
   const orgs = data?.orgs ?? [];
+
+  // With no organization to choose from, a pending selection can never be
+  // resolved here. Clear it and leave, or app-root redirects back to
+  // /onboarding while this page's resource step redirects out again — the
+  // two flip the route forever and remount the session tree on every pass.
+  useEffect(() => {
+    if (!authToken || orgId || isPending || error || orgs.length > 0) return;
+    clearOrgSelectionPending();
+    navigate("/session", { replace: true });
+  }, [authToken, error, isPending, navigate, orgId, orgs.length]);
+
   const postListStep = resolveOrgOnboardingPostListStep({
     orgs,
     activeOrgId: orgId || suggestedOrgId,
