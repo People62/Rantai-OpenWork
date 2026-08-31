@@ -63,6 +63,7 @@ import {
   type RouteSession,
   type RouteWorkspace,
 } from "./route-workspaces";
+import { shouldSkipSessionLoad } from "./session-load-throttle";
 import {
   readActiveWorkspaceId,
   readWorkspaceOrderIds,
@@ -224,6 +225,9 @@ export function useWorkspaceRouteState(input: UseWorkspaceRouteStateInput) {
   const [retryingWorkspaceIds, setRetryingWorkspaceIds] = useState<string[]>([]);
   const reconnectAttemptedWorkspaceIdRef = useRef("");
   const backgroundSessionLoadInFlight = useRef<Map<string, number>>(new Map());
+  // Survives request completion so the minimum interval is real; the
+  // in-flight map above only prevents concurrent loads.
+  const backgroundSessionLoadStartedAt = useRef<Map<string, number>>(new Map());
   const loadedWorkspaceIdsRef = useRef(new Set<string>());
   const serverActiveWorkspaceIdRef = useRef("");
   const workspaceSelectionCommitTimerRef = useRef<number | null>(null);
@@ -305,10 +309,19 @@ export function useWorkspaceRouteState(input: UseWorkspaceRouteStateInput) {
           }
           return;
         }
-        const startedAt = backgroundSessionLoadInFlight.current.get(workspace.id) ?? 0;
-        if (startedAt && Date.now() - startedAt < 5_000) return;
         const requestStartedAt = Date.now();
+        if (
+          shouldSkipSessionLoad({
+            attempt,
+            inFlight: backgroundSessionLoadInFlight.current.has(workspace.id),
+            lastStartedAt: backgroundSessionLoadStartedAt.current.get(workspace.id),
+            now: requestStartedAt,
+          })
+        ) {
+          return;
+        }
         backgroundSessionLoadInFlight.current.set(workspace.id, requestStartedAt);
+        backgroundSessionLoadStartedAt.current.set(workspace.id, requestStartedAt);
         if (isRemoteOpenworkWorkspace) {
           setWorkspaceConnectionOverrides((current) => ({
             ...current,
