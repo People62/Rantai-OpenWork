@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from "bun:test";
+import { afterAll, beforeEach, describe, expect, test } from "bun:test";
 
 import { LOCAL_PREFERENCES_KEY } from "../src/react-app/kernel/local-preferences-storage";
 import { notifyDesktopEvent } from "../src/react-app/shell/desktop-notifications";
@@ -26,6 +26,27 @@ const localStorageStub = {
 function setPreference(value: "off" | "important" | "all") {
   localStorageStub.setItem(LOCAL_PREFERENCES_KEY, JSON.stringify({ desktopNotifications: value }));
 }
+
+// `window.__OPENWORK_ELECTRON__` is how the app decides it runs under Electron,
+// and every HTTP client switches to the desktop IPC bridge when it is present.
+// Leaving it behind makes every later test file in the same process believe it
+// is a desktop build, so the descriptors are captured once and restored after
+// this file finishes.
+const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+const originalDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
+
+function restoreProperty(key: "window" | "document", descriptor: PropertyDescriptor | undefined) {
+  if (descriptor) {
+    Object.defineProperty(globalThis, key, descriptor);
+    return;
+  }
+  delete (globalThis as Record<string, unknown>)[key];
+}
+
+afterAll(() => {
+  restoreProperty("window", originalWindow);
+  restoreProperty("document", originalDocument);
+});
 
 function installRuntime({ focused }: { focused: boolean }) {
   Object.defineProperty(globalThis, "window", {

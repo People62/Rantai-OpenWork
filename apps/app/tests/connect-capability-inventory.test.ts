@@ -1,9 +1,18 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 
 import { createDenClient } from "../src/app/lib/den";
 import {
   listAssignedConnectCapabilities,
 } from "../src/react-app/domains/session/surface/connect-capability-inventory";
+
+// Globals replaced here leak into every later test file in the same bun
+// process, so the originals are captured and put back when this file ends.
+const __original_fetch = Object.getOwnPropertyDescriptor(globalThis, "fetch");
+afterAll(() => {
+  if (__original_fetch) Object.defineProperty(globalThis, "fetch", __original_fetch);
+  else delete (globalThis as Record<string, unknown>).fetch;
+});
+
 
 describe("assigned OpenWork Connect capability inventory", () => {
   test("keeps assigned Workflows returned by Den", async () => {

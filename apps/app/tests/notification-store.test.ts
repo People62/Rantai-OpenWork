@@ -1,4 +1,13 @@
-import { beforeEach, describe, expect, test } from "bun:test";
+import { afterAll, beforeEach, describe, expect, test } from "bun:test";
+
+// Globals replaced here leak into every later test file in the same bun
+// process, so the originals are captured and put back when this file ends.
+const __original_localStorage = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+afterAll(() => {
+  if (__original_localStorage) Object.defineProperty(globalThis, "localStorage", __original_localStorage);
+  else delete (globalThis as Record<string, unknown>).localStorage;
+});
+
 
 // Minimal localStorage stub so the persisted zustand store works under bun.
 const storage = new Map<string, string>();

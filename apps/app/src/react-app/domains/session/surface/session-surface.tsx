@@ -76,6 +76,11 @@ import {
 } from "@/react-app/domains/session/sync/session-sync";
 import { resolveForkBoundaryId } from "@/react-app/domains/session/sync/transcript-reconcile";
 import {
+  formatTokenCount,
+  formatUsageCost,
+  sessionUsageTotals,
+} from "@/react-app/domains/session/surface/session-usage";
+import {
   getComposerAttachments,
   getComposerDraft,
   getComposerHistory,
@@ -787,6 +792,12 @@ export function SessionSurface(props: SessionSurfaceProps) {
   });
 
   const currentSnapshot = snapshotQuery.data?.session.id === props.sessionId ? snapshotQuery.data : null;
+  // The engine reports cost and tokens on every assistant message; this is
+  // the first place chat surfaces them.
+  const usage = useMemo(
+    () => sessionUsageTotals(currentSnapshot?.messages),
+    [currentSnapshot?.messages],
+  );
   const transcriptState = useSharedQueryState<UIMessage[]>(transcriptQueryKey, EMPTY_TRANSCRIPT);
   const statusState = useSharedQueryState(statusQueryKey, currentSnapshot?.status ?? IDLE_STATUS);
 
@@ -2121,6 +2132,21 @@ export function SessionSurface(props: SessionSurfaceProps) {
       </div>
 
       <div ref={composerShellRef} className="shrink-0 px-0 pb-2 pt-2">
+        {usage.hasUsage ? (
+          <div
+            className="mx-auto mb-1.5 flex max-w-[800px] items-center justify-end gap-2 px-1 text-[11px] text-dls-secondary tabular-nums"
+            data-testid="session-usage-summary"
+            title={`Input ${usage.inputTokens.toLocaleString()} · Output ${usage.outputTokens.toLocaleString()} tokens`}
+          >
+            <span>{formatTokenCount(usage.totalTokens)} tokens</span>
+            {formatUsageCost(usage.cost) ? (
+              <>
+                <span aria-hidden="true">·</span>
+                <span>{formatUsageCost(usage.cost)}</span>
+              </>
+            ) : null}
+          </div>
+        ) : null}
         {(props.providerConnectedCount ?? 0) === 0 ? (
           <button
             type="button"

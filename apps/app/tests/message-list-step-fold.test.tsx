@@ -1,10 +1,19 @@
 /** @jsxImportSource react */
-import { describe, expect, test } from "bun:test";
+import { afterAll, describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { DynamicToolUIPart, UIMessage } from "ai";
 
 import { MessageList } from "../src/components/chat/message-list";
 import { MessageListProvider } from "../src/components/chat/message-list-provider";
+
+// Globals replaced here leak into every later test file in the same bun
+// process, so the originals are captured and put back when this file ends.
+const __original_window = Object.getOwnPropertyDescriptor(globalThis, "window");
+afterAll(() => {
+  if (__original_window) Object.defineProperty(globalThis, "window", __original_window);
+  else delete (globalThis as Record<string, unknown>).window;
+});
+
 
 function bashPart(id: string): DynamicToolUIPart {
   return {
