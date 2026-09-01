@@ -104,6 +104,7 @@ import {
   libraryPluginFileDisplayName,
   libraryPluginFileFallbackDetailId,
   libraryPluginFileKind,
+  libraryPluginMatchesFilter,
   libraryPluginFilePreferredDetailId,
   parseLibraryAgentDetailId,
   parseLibraryCommandDetailId,
@@ -1424,7 +1425,11 @@ export function McpView(props: McpViewProps) {
         installedPlugins={
           installedPlugins.filter((plugin) => {
             if (!showHidden && isOpenWorkExtensionHidden(`plugin:${plugin.pluginId}`)) return false;
-            if (!matchesExtensionFilter(filter, "plugin")) return false;
+            // Also match the categories this plugin's components belong to, so
+            // something made with "Add agent" is findable under Agents.
+            if (!libraryPluginMatchesFilter(plugin.files, (kind) => matchesExtensionFilter(filter, kind))) {
+              return false;
+            }
             if (!search.trim()) return true;
             const q = search.toLowerCase();
             return [plugin.name, plugin.description ?? "", ...plugin.files.map((file) => `${file.title} ${file.objectType} ${file.path}`)]
