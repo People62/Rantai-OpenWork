@@ -68,13 +68,10 @@ Object.defineProperty(globalThis, "localStorage", {
   value: storage,
 });
 
-const { persistUiState, toggleSidePanelState, useUiStateStore } = await import(
+const { persistUiState, readPersistedUiState, toggleSidePanelState, useUiStateStore } = await import(
   "../src/react-app/shell/ui-state-store"
 );
 const { usePanelTabStore } = await import("../src/react-app/domains/session/panel/panel-tab-store");
-
-const importedSidePanelState = useUiStateStore.getState().sidePanelState;
-const importedWorkspaceRightSidebarExpanded = useUiStateStore.getState().workspaceRightSidebarExpanded;
 
 afterAll(() => {
   Object.defineProperty(globalThis, "window", {
@@ -108,8 +105,12 @@ describe("ui state store", () => {
   });
 
   test("ignores legacy persisted side panel state on startup", () => {
-    expect(importedSidePanelState).toEqual({});
-    expect(importedWorkspaceRightSidebarExpanded).toBe(true);
+    // Calling the reader directly instead of inspecting the imported store:
+    // the store initialises once per process, so reading its value only works
+    // when this file happens to import the module first.
+    const startup = readPersistedUiState();
+    expect(startup.sidePanelState).toEqual({});
+    expect(startup.workspaceRightSidebarExpanded).toBe(true);
   });
 
   test("keeps side panel toggles in memory", () => {

@@ -110,7 +110,13 @@ function readSidebarCookieOpen(): boolean | null {
   return cookie.slice(prefix.length) === "true";
 }
 
-function readPersistedUiState(): UiState {
+/**
+ * Reads the persisted UI state. Exported so tests can exercise the startup
+ * behaviour directly: the store initialises once per process, so asserting on
+ * its imported value forces a test to be the first importer of this module —
+ * something no test ordering can guarantee.
+ */
+export function readPersistedUiState(): UiState {
   if (globalThis.window === undefined) {
     return initialState;
   }
