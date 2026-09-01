@@ -349,17 +349,26 @@ export function initialOrgOnboardingSelectionState(): OrgOnboardingInitialSelect
 type OrgOnboardingPostListStep =
   | { kind: "auto-select-single-org"; organization: DenOrgSummary }
   | { kind: "choose-org"; defaultOrganization: DenOrgSummary }
+  | { kind: "no-organizations" }
   | { kind: "resources"; autoContinue: boolean };
 
 export function resolveOrgOnboardingPostListStep({
   orgs,
   activeOrgId,
+  hasActiveOrganization,
   hasSelectedOrganization,
   autoContinueResources,
   autoSelectFailedOrgId,
 }: {
   orgs: DenOrgSummary[];
+  /** Preferred organization for the chooser; may be a handoff suggestion. */
   activeOrgId: string;
+  /**
+   * Whether an organization is actually selected. A handoff suggestion does
+   * not count: the resources step queries by the stored active id, so a
+   * suggestion alone would render it against an empty id.
+   */
+  hasActiveOrganization: boolean;
   hasSelectedOrganization: boolean;
   autoContinueResources: boolean;
   autoSelectFailedOrgId: string | null;
@@ -375,6 +384,13 @@ export function resolveOrgOnboardingPostListStep({
       kind: "choose-org",
       defaultOrganization: orgs.find((org) => org.id === activeOrgId) ?? orgs[0],
     };
+  }
+
+  // Nothing to choose from and nothing already active. The resources step
+  // queries by organization id, so it would sit on a disabled query forever;
+  // callers need to route away instead of rendering it.
+  if (orgs.length === 0 && !hasActiveOrganization) {
+    return { kind: "no-organizations" };
   }
 
   return {
@@ -449,19 +465,23 @@ export function OrgOnboardingPage() {
   // resolved here. Clear it and leave, or app-root redirects back to
   // /onboarding while this page's resource step redirects out again — the
   // two flip the route forever and remount the session tree on every pass.
-  useEffect(() => {
-    if (!authToken || orgId || isPending || error || orgs.length > 0) return;
-    clearOrgSelectionPending();
-    navigate("/session", { replace: true });
-  }, [authToken, error, isPending, navigate, orgId, orgs.length]);
-
   const postListStep = resolveOrgOnboardingPostListStep({
     orgs,
     activeOrgId: orgId || suggestedOrgId,
+    hasActiveOrganization: Boolean(orgId),
     hasSelectedOrganization,
     autoContinueResources,
     autoSelectFailedOrgId,
   });
+  // With no organization to choose, a pending selection can never be resolved
+  // here; clear it and leave, or app-root redirects straight back.
+  useEffect(() => {
+    if (!authToken || isPending || error) return;
+    if (postListStep.kind !== "no-organizations") return;
+    clearOrgSelectionPending();
+    navigate("/session", { replace: true });
+  }, [authToken, error, isPending, navigate, postListStep.kind]);
+
   const autoSelectOrg = postListStep.kind === "auto-select-single-org"
     ? postListStep.organization
     : null;
@@ -577,6 +597,10 @@ export function OrgOnboardingPage() {
       />
     );
   }
+
+  // The effect above routes away for this step; render nothing meanwhile so
+  // the resources page never mounts against an organization that is not there.
+  if (postListStep.kind === "no-organizations") return null;
 
   return (
     <ResourceSelectionPage

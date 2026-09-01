@@ -33,6 +33,7 @@ describe("org onboarding organization choice", () => {
     const step = resolveOrgOnboardingPostListStep({
       orgs: [currentOrg, otherOrg],
       activeOrgId: currentOrg.id,
+      hasActiveOrganization: true,
       hasSelectedOrganization: initial.hasSelectedOrganization,
       autoContinueResources: initial.autoContinueResources,
       autoSelectFailedOrgId: null,
@@ -56,6 +57,7 @@ describe("org onboarding organization choice", () => {
     const autoSelectStep = resolveOrgOnboardingPostListStep({
       orgs: [soloOrg],
       activeOrgId: "",
+      hasActiveOrganization: false,
       hasSelectedOrganization: initial.hasSelectedOrganization,
       autoContinueResources: initial.autoContinueResources,
       autoSelectFailedOrgId: null,
@@ -69,6 +71,7 @@ describe("org onboarding organization choice", () => {
     const resourceStep = resolveOrgOnboardingPostListStep({
       orgs: [soloOrg],
       activeOrgId: soloOrg.id,
+      hasActiveOrganization: true,
       hasSelectedOrganization: true,
       autoContinueResources: true,
       autoSelectFailedOrgId: null,
@@ -83,6 +86,7 @@ describe("org onboarding organization choice", () => {
     const step = resolveOrgOnboardingPostListStep({
       orgs: [firstOrg, activeOrg],
       activeOrgId: activeOrg.id,
+      hasActiveOrganization: true,
       hasSelectedOrganization: false,
       autoContinueResources: false,
       autoSelectFailedOrgId: null,
@@ -99,6 +103,7 @@ describe("org onboarding organization choice", () => {
     const step = resolveOrgOnboardingPostListStep({
       orgs: [soloOrg],
       activeOrgId: soloOrg.id,
+      hasActiveOrganization: true,
       hasSelectedOrganization: false,
       autoContinueResources: false,
       autoSelectFailedOrgId: soloOrg.id,
@@ -108,5 +113,51 @@ describe("org onboarding organization choice", () => {
       kind: "choose-org",
       defaultOrganization: soloOrg,
     });
+  });
+
+  test("reports no organizations when the list is empty and none is active", () => {
+    // The loop we fixed came from here: an empty list fell through to the
+    // resources step, whose queries are keyed by organization id and stay
+    // disabled forever, so the page never resolved.
+    expect(
+      resolveOrgOnboardingPostListStep({
+        orgs: [],
+        activeOrgId: "",
+        hasActiveOrganization: false,
+        hasSelectedOrganization: false,
+        autoContinueResources: false,
+        autoSelectFailedOrgId: null,
+      }),
+    ).toEqual({ kind: "no-organizations" });
+  });
+
+  test("still shows resources for an empty list once an organization is active", () => {
+    // A transient empty read must not evict someone who already picked one.
+    expect(
+      resolveOrgOnboardingPostListStep({
+        orgs: [],
+        activeOrgId: "org_1",
+        hasActiveOrganization: true,
+        hasSelectedOrganization: true,
+        autoContinueResources: false,
+        autoSelectFailedOrgId: null,
+      }),
+    ).toEqual({ kind: "resources", autoContinue: true });
+  });
+
+  test("a handoff suggestion alone does not count as an active organization", () => {
+    // The resources step reads the stored active id, not the suggestion, so
+    // treating a suggestion as active renders that step against an empty id
+    // and revives the redirect loop this branch exists to prevent.
+    expect(
+      resolveOrgOnboardingPostListStep({
+        orgs: [],
+        activeOrgId: "org_suggested",
+        hasActiveOrganization: false,
+        hasSelectedOrganization: false,
+        autoContinueResources: false,
+        autoSelectFailedOrgId: null,
+      }).kind,
+    ).toBe("no-organizations");
   });
 });
