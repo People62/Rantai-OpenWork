@@ -61,6 +61,50 @@ describe("composer connection inventory", () => {
       server,
       status: { status: "needs_auth" },
       connection,
-    })).toEqual({ connectionId: "emc_gmail", reconnect: false });
+    })).toEqual({ kind: "org-connection", connectionId: "emc_gmail", reconnect: false });
+  });
+
+  test("offers a settings hop for a local MCP that needs sign-in", () => {
+    // Its OAuth flow lives in the connections store, which the composer cannot
+    // reach, so the row previously showed a status with nothing to click.
+    expect(composerConnectionSignIn({
+      server: {
+        id: "local-notion",
+        name: "Notion",
+        config: { type: "remote" as const, url: "https://mcp.notion.com/mcp" },
+      },
+      status: { status: "needs_auth" },
+    })).toEqual({ kind: "settings" });
+  });
+
+  test("stays quiet for a local MCP with no authorization flow", () => {
+    expect(composerConnectionSignIn({
+      server: {
+        id: "local-fs",
+        name: "Filesystem",
+        config: { type: "local" as const, command: ["mcp-fs"] },
+      },
+      status: { status: "needs_auth" },
+    })).toBe(null);
+
+    expect(composerConnectionSignIn({
+      server: {
+        id: "local-optout",
+        name: "No OAuth",
+        config: { type: "remote" as const, url: "https://example.test/mcp", oauth: false },
+      },
+      status: { status: "needs_auth" },
+    })).toBe(null);
+  });
+
+  test("stays quiet when nothing needs authorization", () => {
+    expect(composerConnectionSignIn({
+      server: {
+        id: "local-notion",
+        name: "Notion",
+        config: { type: "remote" as const, url: "https://mcp.notion.com/mcp" },
+      },
+      status: { status: "connected" },
+    })).toBe(null);
   });
 });

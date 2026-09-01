@@ -7,10 +7,15 @@ import {
   orgConnectionCanRender,
 } from "@/react-app/domains/settings/extension-items";
 
-export type ComposerConnectionSignIn = {
-  connectionId: string;
-  reconnect: boolean;
-};
+export type ComposerConnectionSignIn =
+  /** Org-managed connection: the composer can start authorization itself. */
+  | { kind: "org-connection"; connectionId: string; reconnect: boolean }
+  /**
+   * Workspace-local MCP. Its OAuth flow lives in the connections store, which
+   * is created inside the settings route, so the composer cannot start it.
+   * Point at Settings instead of leaving the row with a status and no action.
+   */
+  | { kind: "settings" };
 
 export function orgMcpConnectionStatus(connection: DenExternalMcpConnection): McpStatus {
   if (isOrgMcpConnectionReady(connection)) return { status: "connected" };
@@ -64,19 +69,31 @@ export function mergeComposerConnectionInventory(input: {
   };
 }
 
+/**
+ * Whether a workspace-local MCP has an authorization flow at all. Mirrors the
+ * checks in the connections store: managed OAuth, or a remote server that has
+ * not opted out.
+ */
+function localMcpCanAuthorize(server: McpServerEntry): boolean {
+  if (server.managedOAuth) return true;
+  return server.config.type === "remote" && server.config.oauth !== false;
+}
+
 export function composerConnectionSignIn(input: {
   server: McpServerEntry;
   status: McpStatus | undefined;
   connection?: DenExternalMcpConnection;
 }): ComposerConnectionSignIn | null {
+  const status = input.status?.status;
+  const reconnect = status === "reconnect_required";
+  if (status !== "needs_auth" && !reconnect) return null;
+
   const connectionId = input.connection?.id ?? input.server.orgMcpConnectionId?.trim();
-  if (!connectionId) return null;
-  if (input.connection && !canMemberAuthorizeConnection(input.connection)) return null;
-  if (input.status?.status === "needs_auth") {
-    return { connectionId, reconnect: false };
+  if (connectionId) {
+    if (input.connection && !canMemberAuthorizeConnection(input.connection)) return null;
+    return { kind: "org-connection", connectionId, reconnect };
   }
-  if (input.status?.status === "reconnect_required") {
-    return { connectionId, reconnect: true };
-  }
-  return null;
+
+  if (!localMcpCanAuthorize(input.server)) return null;
+  return { kind: "settings" };
 }

@@ -773,7 +773,9 @@ export function ReactSessionComposer(props: ComposerProps) {
           const statusLabel = toolMenuMcpStatusLabel(status);
           const connection = orgMcp.connections.find((entry) => entry.id === server.orgMcpConnectionId);
           const signIn = composerConnectionSignIn({ server, status, connection });
-          const connecting = Boolean(signIn && orgMcp.connectingId === signIn.connectionId);
+          const connecting = Boolean(
+            signIn?.kind === "org-connection" && orgMcp.connectingId === signIn.connectionId,
+          );
           const source = [server.marketplaceName, server.pluginName].filter(Boolean).join(" · ");
           return (
             <div
@@ -789,11 +791,17 @@ export function ReactSessionComposer(props: ComposerProps) {
                       className="inline-flex shrink-0 items-center gap-1 rounded-full bg-gray-12 px-2 py-0.5 text-[10px] font-medium text-gray-1 transition-colors hover:bg-gray-11 disabled:opacity-60"
                       disabled={connecting}
                       onClick={() => {
+                        if (signIn.kind === "settings") {
+                          props.onOpenSettingsSection?.("connections");
+                          return;
+                        }
                         void orgMcp.connect(signIn.connectionId, { forceFreshAuthorization: signIn.reconnect });
                       }}
                     >
                       {connecting ? <LoaderCircle size={10} className="animate-spin" /> : null}
-                      {signIn.reconnect ? t("mcp.org_connection_reconnect_action") : t("mcp.org_connection_connect_action")}
+                      {signIn.kind === "org-connection" && signIn.reconnect
+                        ? t("mcp.org_connection_reconnect_action")
+                        : t("mcp.org_connection_connect_action")}
                     </button>
                   ) : statusLabel ? (
                     <span className="shrink-0 rounded-full bg-gray-3 px-2 py-0.5 text-[10px] font-medium text-gray-11">
