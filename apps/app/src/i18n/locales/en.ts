@@ -692,6 +692,7 @@ export default {
   "extensions.add_mcp_url_required": "MCP server URL is required.",
   "extensions.add_name_hint_mcp": "Shown in Library and the composer",
   "extensions.add_sign_in_required": "Sign in to OpenWork Cloud to add items to Library.",
+  "extensions.add_choose_org_required": "Choose an organization in Settings → Cloud before adding to your Library.",
   "extensions.create_skill_submit": "Create skill",
   "extensions.create_plugin_submit": "Create plugin",
   "extensions.add_modal_hint": "Saved in this workspace and available in the composer.",
