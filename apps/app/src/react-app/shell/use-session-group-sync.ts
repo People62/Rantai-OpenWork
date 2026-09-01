@@ -5,12 +5,18 @@ import type { ResolvedWorkspaceEndpoint } from "@/app/lib/workspace-endpoint";
 import {
   applySessionGroupServerState,
   beginSessionGroupServerSync,
+  setSessionGroupSyncErrorReporter,
   setSessionGroupSyncHandler,
   useSessionManagementStore,
   type SessionGroupDefinition,
   type SessionGroupServerState,
   type WorkspaceGroupState,
 } from "@/react-app/domains/session/sidebar/session-management-store";
+import {
+  describeSessionGroupSyncFailure,
+  shouldReportSessionGroupFailure,
+} from "@/react-app/domains/session/sidebar/session-group-sync-failure";
+import { toast } from "@/components/ui/sonner";
 import type { RouteWorkspace } from "./route-workspaces";
 import { SessionGroupEventPoller } from "./session-group-event-poller";
 
@@ -146,6 +152,25 @@ export function useSessionGroupSync(input: UseSessionGroupSyncInput): void {
       },
     });
     return () => setSessionGroupSyncHandler(null);
+  }, []);
+
+  // Optimistic group edits look saved even when the write failed, so the only
+  // honest signal is telling the user. Repeats of one message are collapsed:
+  // a single dropped connection fails every queued mutation at once.
+  useEffect(() => {
+    let lastMessage: string | undefined;
+    let lastReportedAt: number | undefined;
+
+    setSessionGroupSyncErrorReporter((error) => {
+      const message = describeSessionGroupSyncFailure(error);
+      const now = Date.now();
+      if (!shouldReportSessionGroupFailure({ message, lastMessage, lastReportedAt, now })) return;
+      lastMessage = message;
+      lastReportedAt = now;
+      toast.warning("Session groups were not saved", { description: message });
+    });
+
+    return () => setSessionGroupSyncErrorReporter(null);
   }, []);
 
   useEffect(() => {

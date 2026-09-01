@@ -86,10 +86,20 @@ type SessionManagementStore = SessionManagementState & SessionManagementActions;
 const EMPTY_GROUP_STATE: WorkspaceGroupState = { groups: [], assignments: {} };
 
 let sessionGroupSyncHandler: SessionGroupSyncHandler | null = null;
+/**
+ * Group edits apply optimistically, so a failed save leaves the sidebar
+ * showing an arrangement the server rejected. The shell registers a reporter
+ * that tells the user; the store stays free of UI concerns.
+ */
+let sessionGroupSyncErrorReporter: ((error: unknown) => void) | null = null;
 const sessionGroupSyncStatusByWorkspace: Record<string, SessionGroupSyncStatus> = {};
 
 export function setSessionGroupSyncHandler(handler: SessionGroupSyncHandler | null): void {
   sessionGroupSyncHandler = handler;
+}
+
+export function setSessionGroupSyncErrorReporter(reporter: ((error: unknown) => void) | null): void {
+  sessionGroupSyncErrorReporter = reporter;
 }
 
 function syncStatus(workspaceId: string): SessionGroupSyncStatus {
@@ -158,13 +168,24 @@ function completeSessionGroupMutation(
 
 function reportSyncError(error: unknown): void {
   console.warn("[session-groups] server sync failed", error);
+  sessionGroupSyncErrorReporter?.(error);
 }
 
 function syncServerState(request: Promise<SessionGroupServerState | null> | undefined, workspaceId: string): void {
-  if (!request) return;
+  // No handler registered: the change only ever existed in memory.
+  if (!request) {
+    reportSyncError(new Error("Session group sync is not available right now."));
+    return;
+  }
   const version = beginSessionGroupMutation(workspaceId);
   void request
-    .then((state) => completeSessionGroupMutation(workspaceId, version, state))
+    .then((state) => {
+      completeSessionGroupMutation(workspaceId, version, state);
+      // The handler resolves with null when it cannot reach a workspace
+      // endpoint, so no request is ever sent. That is still a lost change and
+      // has to be reported like a rejected one.
+      if (!state) reportSyncError(new Error("The workspace server could not be reached."));
+    })
     .catch((error) => {
       completeSessionGroupMutation(workspaceId, version, null);
       reportSyncError(error);
