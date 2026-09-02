@@ -1,28 +1,9 @@
-import { afterEach, describe, expect, mock, test } from "bun:test";
+import { afterEach, describe, expect, test } from "bun:test";
 
-let capturedFetch: typeof globalThis.fetch | null = null;
-
-async function unusedSessionMethod() {
-  throw new Error("SDK mock method should not be called");
-}
-
-mock.module("@opencode-ai/sdk/v2/client", () => ({
-  createOpencodeClient: (options: { fetch?: typeof globalThis.fetch }) => {
-    capturedFetch = options.fetch ?? null;
-    return {
-      session: {
-        list: unusedSessionMethod,
-        get: unusedSessionMethod,
-        messages: unusedSessionMethod,
-        todo: unusedSessionMethod,
-        promptAsync: unusedSessionMethod,
-        command: unusedSessionMethod,
-      },
-    };
-  },
-}));
-
-const { createClient } = await import("../src/app/lib/opencode");
+// Deliberately no mock.module here. A module mock in bun is process-global and
+// cannot be undone, so mocking the OpenCode SDK leaked into every test file
+// that ran afterwards. The transport is exported instead, and tested directly.
+import { createOpencodeFetch } from "../src/app/lib/opencode";
 
 const originalWindow = globalThis.window;
 const originalFetch = globalThis.fetch;
@@ -45,7 +26,6 @@ function restoreGlobals() {
     configurable: true,
     value: originalFetch,
   });
-  capturedFetch = null;
 }
 
 function installControllableFetch() {
@@ -72,15 +52,6 @@ function installControllableFetch() {
     observedSignal: () => observedSignal,
     cancel: () => rejectResponse?.(new Error("test cleanup")),
   };
-}
-
-function createCapturedFetch() {
-  capturedFetch = null;
-  createClient("https://web.example/workspace/ws_test/opencode");
-  if (!capturedFetch) {
-    throw new Error("SDK mock did not receive an OpenCode fetch implementation");
-  }
-  return capturedFetch;
 }
 
 function delay(milliseconds: number) {
@@ -110,7 +81,7 @@ describe("OpenCode transport timeouts", () => {
   test("does not transport-timeout web OpenCode event streams", async () => {
     installWindow(undefined);
     const { cancel, observedSignal } = installControllableFetch();
-    const fetchImpl = createCapturedFetch();
+    const fetchImpl = createOpencodeFetch();
 
     const response = fetchImpl("https://web.example/workspace/ws_test/opencode/event", {
       headers: { Accept: "text/event-stream" },
@@ -130,7 +101,7 @@ describe("OpenCode transport timeouts", () => {
   test("keeps timing out ordinary web OpenCode requests", async () => {
     installWindow(undefined);
     const { cancel, observedSignal } = installControllableFetch();
-    const fetchImpl = createCapturedFetch();
+    const fetchImpl = createOpencodeFetch();
 
     const response = fetchImpl("https://web.example/workspace/ws_test/opencode/global/health");
     const errorPromise = response.catch((error: unknown) => error);
@@ -147,7 +118,7 @@ describe("OpenCode transport timeouts", () => {
   test("lets caller AbortSignal cancel web streams", async () => {
     installWindow(undefined);
     const { cancel, observedSignal } = installControllableFetch();
-    const fetchImpl = createCapturedFetch();
+    const fetchImpl = createOpencodeFetch();
     const controller = new AbortController();
 
     const response = fetchImpl("https://web.example/workspace/ws_test/opencode/output", {
@@ -170,7 +141,7 @@ describe("OpenCode transport timeouts", () => {
   test("leaves desktop OpenCode event streams untimed", async () => {
     installWindow({ __OPENWORK_ELECTRON__: {} });
     const { cancel, observedSignal } = installControllableFetch();
-    const fetchImpl = createCapturedFetch();
+    const fetchImpl = createOpencodeFetch();
 
     const response = fetchImpl("https://web.example/workspace/ws_test/opencode/event", {
       headers: { Accept: "text/event-stream" },
