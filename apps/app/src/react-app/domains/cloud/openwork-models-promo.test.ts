@@ -1,4 +1,5 @@
 declare const afterEach: (fn: () => void | Promise<void>) => void;
+declare const beforeEach: (fn: () => void | Promise<void>) => void;
 declare const describe: (name: string, fn: () => void) => void;
 declare const test: (name: string, fn: () => void | Promise<void>) => void;
 declare const expect: (value: unknown) => {
@@ -14,6 +15,14 @@ import {
   shouldShowOpenWorkModelsSyncing,
   wasOpenWorkModelsStartupPromoShown,
 } from "./openwork-models-promo";
+
+// Eligibility reads the process-wide Den bootstrap config, and bun runs every
+// test file in one process. Cleaning up afterwards is not enough: whether this
+// file starts from the default depends on whoever ran before it. Reset on both
+// sides so these tests state their own starting point.
+beforeEach(async () => {
+  await setDenBootstrapConfig({ baseUrl: DEFAULT_DEN_BASE_URL, requireSignin: false });
+});
 
 afterEach(async () => {
   await setDenBootstrapConfig({ baseUrl: DEFAULT_DEN_BASE_URL, requireSignin: false });

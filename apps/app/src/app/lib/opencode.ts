@@ -350,6 +350,22 @@ export function unwrap<T>(result: FieldsResult<T>): NonNullable<T> {
   throw new Error(message || "Unknown error");
 }
 
+/**
+ * The fetch every OpenCode request goes through: desktop gets its own
+ * transport, while the web path times out ordinary requests but leaves event
+ * streams untimed. Exported so the transport can be tested directly — mocking
+ * the SDK module instead would install a process-global mock that bun cannot
+ * undo, and it would leak into every test file that runs afterwards.
+ */
+export function createOpencodeFetch(auth?: OpencodeAuth) {
+  if (isDesktopRuntime()) return createDesktopFetch(auth);
+
+  return (input: RequestInfo | URL, init?: RequestInit) => {
+    const timeoutMs = requestIsStreaming(input, init) ? 0 : DEFAULT_OPENCODE_REQUEST_TIMEOUT_MS;
+    return fetchWithTimeout(globalThis.fetch, input, init, timeoutMs);
+  };
+}
+
 export function createClient(baseUrl: string, directory?: string, auth?: OpencodeAuth) {
   const headers: Record<string, string> = {};
   if (!isDesktopRuntime()) {
@@ -359,12 +375,7 @@ export function createClient(baseUrl: string, directory?: string, auth?: Opencod
     }
   }
 
-  const fetchImpl = isDesktopRuntime()
-    ? createDesktopFetch(auth)
-    : (input: RequestInfo | URL, init?: RequestInit) => {
-        const timeoutMs = requestIsStreaming(input, init) ? 0 : DEFAULT_OPENCODE_REQUEST_TIMEOUT_MS;
-        return fetchWithTimeout(globalThis.fetch, input, init, timeoutMs);
-      };
+  const fetchImpl = createOpencodeFetch(auth);
   const client = createOpencodeClient({
     baseUrl,
     directory,

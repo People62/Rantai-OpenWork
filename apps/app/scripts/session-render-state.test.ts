@@ -11,7 +11,10 @@ import {
   reconcileTranscriptMessages,
   resolveForkBoundaryId,
 } from "../src/react-app/domains/session/sync/transcript-reconcile";
-import { describeOpencodeSessionError } from "../src/react-app/domains/session/sync/usechat-adapter";
+import {
+  describeOpencodeSessionError,
+  presentOpencodeSessionError,
+} from "../src/react-app/domains/session/sync/session-error";
 
 function snapshotWithMessages(
   messages: Array<{ id: string; role: "user" | "assistant"; text: string; created?: number }>,
@@ -312,32 +315,6 @@ describe("deriveRenderedSessionMessages", () => {
 });
 
 describe("describeOpencodeSessionError", () => {
-  it("includes API error status and response details", () => {
-    expect(describeOpencodeSessionError({
-      name: "APIError",
-      data: {
-        message: "Service unavailable",
-        statusCode: 503,
-        isRetryable: true,
-        responseBody: "upstream overloaded",
-      },
-    })).toBe("Service unavailable\nStatus: 503\nResponse: upstream overloaded");
-  });
-
-  it("summarizes and bounds an HTML API response body", () => {
-    const responseBody = `<!DOCTYPE html><html><head><title>502 Bad Gateway</title></head><body>${"x".repeat(1_024 * 1_024)}</body></html>`;
-    const described = describeOpencodeSessionError({
-      name: "APIError",
-      data: { message: "Proxy request failed", statusCode: 502, responseBody },
-    });
-
-    expect(described).toContain("Upstream returned an HTML error page (502 Bad Gateway)");
-    expect(described).toContain("[Error text truncated; original size:");
-    expect(described.toLowerCase()).not.toContain("<!doctype");
-    expect(described.toLowerCase()).not.toContain("<html");
-    expect(described.length).toBeLessThanOrEqual(500);
-  });
-
   it("uses named error defaults when opencode omits a message", () => {
     expect(describeOpencodeSessionError({
       name: "MessageOutputLengthError",
@@ -345,21 +322,51 @@ describe("describeOpencodeSessionError", () => {
     })).toBe("The model reached its output limit before finishing");
   });
 
-  it("surfaces structured output retry counts", () => {
-    expect(describeOpencodeSessionError({
-      name: "StructuredOutputError",
-      data: {
-        message: "Invalid JSON",
-        retries: 3,
-      },
-    })).toBe("Invalid JSON\nRetries: 3");
-  });
-
   it("maps OpenAI ChatGPT token refresh 401 to reconnect guidance", () => {
     expect(describeOpencodeSessionError(new Error("Token refresh failed: 401"))).toBe(
       "OpenAI couldn’t renew the ChatGPT sign-in for this worker. Retry once. If it happens again, reconnect OpenAI under Connect providers → OpenAI → ChatGPT Pro/Plus.",
     );
     expect(describeOpencodeSessionError("Token refresh failed: 403")).toBe("Token refresh failed: 403");
+  });
+});
+
+describe("presentOpencodeSessionError technical details", () => {
+  it("includes API error status and response details", () => {
+    expect(presentOpencodeSessionError({
+      name: "APIError",
+      data: {
+        message: "Service unavailable",
+        statusCode: 503,
+        isRetryable: true,
+        responseBody: "upstream overloaded",
+      },
+    }).technicalDetails).toBe(
+      "Error type: APIError\nMessage: Service unavailable\nStatus: 503\nResponse: upstream overloaded",
+    );
+  });
+
+  it("summarizes and bounds an HTML API response body", () => {
+    const responseBody = `<!DOCTYPE html><html><head><title>502 Bad Gateway</title></head><body>${"x".repeat(1_024 * 1_024)}</body></html>`;
+    const details = presentOpencodeSessionError({
+      name: "APIError",
+      data: { message: "Proxy request failed", statusCode: 502, responseBody },
+    }).technicalDetails;
+
+    expect(details).toContain("Upstream returned an HTML error page (502 Bad Gateway)");
+    expect(details).toContain("[Error text truncated; original size:");
+    expect(details.toLowerCase()).not.toContain("<!doctype");
+    expect(details.toLowerCase()).not.toContain("<html");
+    expect(details.length).toBeLessThanOrEqual(500);
+  });
+
+  it("surfaces structured output retry counts", () => {
+    expect(presentOpencodeSessionError({
+      name: "StructuredOutputError",
+      data: {
+        message: "Invalid JSON",
+        retries: 3,
+      },
+    }).technicalDetails).toBe("Error type: StructuredOutputError\nMessage: Invalid JSON\nRetries: 3");
   });
 });
 
