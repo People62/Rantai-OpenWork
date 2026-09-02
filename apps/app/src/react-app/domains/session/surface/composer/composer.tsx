@@ -88,9 +88,8 @@ type ComposerProps = {
   listCommands: () => Promise<SlashCommandOption[]>;
   listSkills?: () => Promise<SkillCard[]>;
   skills?: SkillCard[];
-  listMcp?: () => Promise<{ servers: McpServerEntry[]; statuses: McpStatusMap; status: string | null }>;
+  listMcp?: () => Promise<{ servers: McpServerEntry[]; statuses: McpStatusMap }>;
   mcpServers?: McpServerEntry[];
-  mcpStatus?: string | null;
   mcpStatuses?: McpStatusMap;
   listImportedPlugins?: () => Promise<CloudImportedPlugin[]>;
   importedPlugins?: CloudImportedPlugin[];
