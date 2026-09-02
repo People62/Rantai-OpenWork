@@ -65,6 +65,7 @@ import {
 import { notifyEvent } from "../../../shell/notifications";
 import type { OpenworkServerStore } from "../../connections/openwork-server-store";
 import { clearCloudInventoryCache } from "../../connections/cloud-inventory-cache";
+import { libraryCreateBlockReason } from "./library-create-gate";
 import {
   denLibraryPluginCreateRequest,
   waitForListedLibraryPlugin,
@@ -2264,8 +2265,13 @@ export function createExtensionsStore(options: {
     const settings = readDenSettings();
     const token = settings.authToken?.trim() ?? "";
     const orgId = settings.activeOrgId?.trim() ?? "";
-    if (!token || !orgId) {
-      throw new Error(t("extensions.add_sign_in_required"));
+    const blocked = libraryCreateBlockReason({ authToken: token, activeOrgId: orgId });
+    if (blocked) {
+      throw new Error(
+        blocked === "sign-in"
+          ? t("extensions.add_sign_in_required")
+          : t("extensions.add_choose_org_required"),
+      );
     }
     const client = createDenClient({
       baseUrl: settings.baseUrl,

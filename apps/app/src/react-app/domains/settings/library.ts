@@ -346,6 +346,27 @@ export function libraryPluginFileKind(objectType: string): LibraryPluginFileKind
   return null;
 }
 
+/**
+ * Whether a Den plugin belongs in a category filter.
+ *
+ * Creating an agent, command, or skill through Add stores it in Den as a
+ * plugin wrapping one component of that type. Matching only "plugin" meant an
+ * item made with "Add agent" never appeared under the Agents filter — it
+ * existed, but not where the user went looking for it.
+ *
+ * A plugin therefore also matches the filters of the components it carries.
+ */
+export function libraryPluginMatchesFilter(
+  files: readonly LibraryPluginFileRef[],
+  matches: (kind: LibraryPluginFileKind | "plugin") => boolean,
+): boolean {
+  if (matches("plugin")) return true;
+  return files.some((file) => {
+    const kind = libraryPluginFileKind(file.objectType);
+    return kind !== null && matches(kind);
+  });
+}
+
 export function libraryPluginFileDisplayName(file: LibraryPluginFileRef): string {
   const kind = libraryPluginFileKind(file.objectType);
   if (kind === "skill") return file.skillName ?? file.title;
