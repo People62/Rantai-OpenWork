@@ -745,7 +745,6 @@ export function SessionSurface(props: SessionSurfaceProps) {
   const [rendered, setRendered] = useState<{ sessionId: string; snapshot: OpenworkSessionSnapshot } | null>(null);
   const [toolSkills, setToolSkills] = useState<SkillCard[]>([]);
   const [toolMcpServers, setToolMcpServers] = useState<McpServerEntry[]>([]);
-  const [toolMcpStatus, setToolMcpStatus] = useState<string | null>(null);
   const [toolMcpStatuses, setToolMcpStatuses] = useState<McpStatusMap>({});
   const [toolImportedPlugins, setToolImportedPlugins] = useState<CloudImportedPlugin[]>([]);
   const skillsConnectPushRef = useRef(0);
@@ -1613,7 +1612,7 @@ export function SessionSurface(props: SessionSurfaceProps) {
     return next;
   };
 
-  const listMcp = async (): Promise<{ servers: McpServerEntry[]; statuses: McpStatusMap; status: string | null }> => {
+  const listMcp = async (): Promise<{ servers: McpServerEntry[]; statuses: McpStatusMap }> => {
     const pushId = ++mcpConnectPushRef.current;
     const scope = readCloudInventoryScope();
     const cachedConnect = (scope ? readCachedConnectCapabilities(scope) : null) ?? EMPTY_CONNECT_CAPABILITY_INVENTORY;
@@ -1641,10 +1640,8 @@ export function SessionSurface(props: SessionSurfaceProps) {
       if (mcpConnectPushRef.current !== pushId) return;
       const freshServers = [...localServers, ...connect.mcpServers];
       const freshStatuses = { ...connect.mcpStatuses, ...localStatuses };
-      const freshStatus = freshServers.length ? null : "No MCP servers loaded.";
       setToolMcpServers(freshServers);
       setToolMcpStatuses(freshStatuses);
-      setToolMcpStatus(freshStatus);
 
       // Quiet self-heal: remote OAuth connectors whose access token expired
       // show "Sign in needed" even though the stored refresh token still
@@ -1671,12 +1668,10 @@ export function SessionSurface(props: SessionSurfaceProps) {
 
     const servers = [...localServers, ...cachedConnect.mcpServers];
     const statuses = { ...cachedConnect.mcpStatuses, ...localStatuses };
-    const status = servers.length ? null : "No MCP servers loaded.";
     setToolMcpServers(servers);
     setToolMcpStatuses(statuses);
-    setToolMcpStatus(status);
 
-    return { servers, statuses, status };
+    return { servers, statuses };
   };
 
   const listImportedPlugins = async (): Promise<CloudImportedPlugin[]> => {
@@ -2223,7 +2218,6 @@ export function SessionSurface(props: SessionSurfaceProps) {
         skills={toolSkills}
         listMcp={listMcp}
         mcpServers={toolMcpServers}
-        mcpStatus={toolMcpStatus}
         mcpStatuses={toolMcpStatuses}
         listImportedPlugins={listImportedPlugins}
         importedPlugins={toolImportedPlugins}

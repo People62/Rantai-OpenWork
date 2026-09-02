@@ -87,7 +87,6 @@ export function NewTaskComposer(props: NewTaskComposerProps) {
   const [skills, setSkills] = useState<SkillCard[]>([]);
   const [mcpServers, setMcpServers] = useState<McpServerEntry[]>([]);
   const [mcpStatuses, setMcpStatuses] = useState<McpStatusMap>({});
-  const [mcpStatus, setMcpStatus] = useState<string | null>(null);
   const [importedPlugins, setImportedPlugins] = useState<CloudImportedPlugin[]>([]);
   const [pastedText, setPastedText] = useState<PastedTextChip[]>([]);
   const skillsConnectPushRef = useRef(0);
@@ -124,7 +123,7 @@ export function NewTaskComposer(props: NewTaskComposerProps) {
     : undefined;
 
   const listMcp = workspaceClient && workspaceId
-    ? async (): Promise<{ servers: McpServerEntry[]; statuses: McpStatusMap; status: string | null }> => {
+    ? async (): Promise<{ servers: McpServerEntry[]; statuses: McpStatusMap }> => {
         const pushId = ++mcpConnectPushRef.current;
         const scope = readCloudInventoryScope();
         const cachedConnect = (scope ? readCachedConnectCapabilities(scope) : null) ?? EMPTY_CONNECT_CAPABILITY_INVENTORY;
@@ -139,18 +138,14 @@ export function NewTaskComposer(props: NewTaskComposerProps) {
         void connectPromise.then((connect) => {
           if (mcpConnectPushRef.current !== pushId) return;
           const freshServers = [...localServers, ...connect.mcpServers];
-          const freshStatus = freshServers.length ? null : "No MCP servers loaded.";
           setMcpServers(freshServers);
           setMcpStatuses(connect.mcpStatuses);
-          setMcpStatus(freshStatus);
         });
         const servers = [...localServers, ...cachedConnect.mcpServers];
         const statuses = cachedConnect.mcpStatuses;
-        const status = servers.length ? null : "No MCP servers loaded.";
         setMcpServers(servers);
         setMcpStatuses(statuses);
-        setMcpStatus(status);
-        return { servers, statuses, status };
+        return { servers, statuses };
       }
     : undefined;
 
@@ -296,7 +291,6 @@ export function NewTaskComposer(props: NewTaskComposerProps) {
       skills={skills}
       listMcp={listMcp}
       mcpServers={mcpServers}
-      mcpStatus={mcpStatus}
       mcpStatuses={mcpStatuses}
       listImportedPlugins={listImportedPlugins}
       importedPlugins={importedPlugins}
