@@ -7,23 +7,24 @@ declare const expect: (value: unknown) => {
 import { platformCapabilities } from "./platform-capabilities";
 
 const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
-const originalElectron = Object.getOwnPropertyDescriptor(globalThis, "__OPENWORK_ELECTRON__");
 
 function setElectronRuntime(enabled: boolean) {
-  if (!originalWindow && typeof window === "undefined") {
+  if (typeof window === "undefined") {
     Object.defineProperty(globalThis, "window", { value: globalThis, configurable: true });
   }
-  Object.defineProperty(globalThis, "__OPENWORK_ELECTRON__", {
+  // isElectronRuntime() reads the flag off `window`, and `window` is not
+  // always globalThis: bun runs every test file in one process, so another
+  // file may have installed its own window object first. Setting the flag on
+  // globalThis would then land on an object nobody reads.
+  Object.defineProperty(window, "__OPENWORK_ELECTRON__", {
     value: enabled ? {} : undefined,
     configurable: true,
   });
 }
 
 function restoreRuntime() {
-  if (originalElectron) {
-    Object.defineProperty(globalThis, "__OPENWORK_ELECTRON__", originalElectron);
-  } else {
-    Object.defineProperty(globalThis, "__OPENWORK_ELECTRON__", { value: undefined, configurable: true });
+  if (typeof window !== "undefined") {
+    Object.defineProperty(window, "__OPENWORK_ELECTRON__", { value: undefined, configurable: true });
   }
   if (originalWindow) {
     Object.defineProperty(globalThis, "window", originalWindow);
