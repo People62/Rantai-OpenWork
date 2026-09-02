@@ -366,7 +366,41 @@ export function formatRelativeTime(timestampMs: number) {
   return new Date(timestampMs).toLocaleDateString();
 }
 
-export function addOpencodeCacheHint(message: string) {
+export type OpencodeCachePlatform = "windows" | "mac" | "other";
+
+/** Where OpenCode keeps its cache, when the error does not say. */
+const OPENCODE_CACHE_LOCATIONS: Record<OpencodeCachePlatform, string> = {
+  windows: "%LOCALAPPDATA%\\opencode",
+  mac: "~/Library/Caches/opencode",
+  other: "~/.cache/opencode",
+};
+
+const OPENCODE_CACHE_ROOT_PATTERN =
+  /[^\s"'`]*(?:[/\\]\.cache[/\\]opencode|[/\\]library[/\\]caches[/\\]opencode|[/\\]appdata[/\\]local[/\\]opencode)/i;
+
+/**
+ * The cache directory the error itself names. Preferred over a per-platform
+ * guess: the path in the error is the one the engine actually used, which is
+ * not always a path on the machine running this UI.
+ */
+export function opencodeCacheRootFromMessage(message: string): string | null {
+  return message.match(OPENCODE_CACHE_ROOT_PATTERN)?.[0] ?? null;
+}
+
+function currentOpencodeCachePlatform(): OpencodeCachePlatform {
+  if (isWindowsPlatform()) return "windows";
+  if (isMacPlatform()) return "mac";
+  return "other";
+}
+
+/**
+ * Names the recovery a corrupted OpenCode cache needs. Deliberately does not
+ * point at Repair cache in Settings: that control is disabled, its handler is
+ * a stub, and the page it lives on says the action is not available — so the
+ * old hint sent people to a dead end. Deleting the directory is the recovery
+ * they can actually carry out, so the hint names it.
+ */
+export function addOpencodeCacheHint(message: string, platform?: OpencodeCachePlatform) {
   const lower = message.toLowerCase();
   const cacheSignals = [
     ".cache/opencode",
@@ -377,7 +411,9 @@ export function addOpencodeCacheHint(message: string) {
   ];
 
   if (cacheSignals.some((signal) => lower.includes(signal)) && lower.includes("enoent")) {
-    return `${message}\n\nOpenCode cache looks corrupted. Use Repair cache in Settings to rebuild it.`;
+    const location = opencodeCacheRootFromMessage(message)
+      ?? OPENCODE_CACHE_LOCATIONS[platform ?? currentOpencodeCachePlatform()];
+    return `${message}\n\nOpenCode cache looks corrupted. Delete ${location} and restart OpenWork to rebuild it.`;
   }
 
   return message;
