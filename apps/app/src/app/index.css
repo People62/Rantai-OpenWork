@@ -91,6 +91,15 @@
 }
 
 :root {
+  /* Brand colors. Literal on purpose: these identify the product, so they do
+     not shift with the theme. Which one carries the accent does — navy reads
+     on light grounds (8.7:1) and disappears on dark (2.1:1); sky is the exact
+     mirror. Blue sits between them, too light to hold white text on a button
+     but right for a focus ring on either ground. */
+  --brand-sky: #5eb8ff;
+  --brand-blue: #3b8cff;
+  --brand-navy: #28468c;
+
   color-scheme: light;
   --dls-surface: var(--slate-1);
   --dls-sidebar: var(--slate-2);
@@ -99,10 +108,11 @@
   --dls-canvas: var(--slate-2);
   --dls-surface-muted: var(--slate-3);
   --dls-border: #f3f4f6;
-  --dls-accent: #011627;
-  --dls-accent-hover: #000000;
+  --dls-accent: var(--brand-navy);
+  --dls-accent-hover: #1e3568;
   --dls-accent-fg: #ffffff;
-  --dls-accent-rgb: 1 22 39;
+  /* Kept in sync with --brand-navy by hand: rgba() usages need the triple. */
+  --dls-accent-rgb: 40 70 140;
   --dls-secondary-rgb: 96 100 108;
   --dls-text-primary: var(--slate-12);
   --dls-text-secondary: var(--slate-11);
@@ -119,7 +129,7 @@
   --popover: var(--slate-1);
   --popover-foreground: var(--slate-12);
   --popover-border: var(--slate-5);
-  --primary: var(--blue-9);
+  --primary: var(--brand-navy);
   --primary-foreground: white;
   --secondary: var(--slate-3);
   --secondary-foreground: var(--slate-12);
@@ -131,7 +141,7 @@
   --warning: var(--amber-11);
   --border: var(--slate-5);
   --input: var(--slate-6);
-  --ring: var(--slate-8);
+  --ring: var(--brand-blue);
   --chart-1: var(--sky-9);
   --chart-2: var(--blue-9);
   --chart-3: var(--indigo-9);
@@ -140,12 +150,12 @@
   --radius: 0.45rem;
   --sidebar: var(--slate-2);
   --sidebar-foreground: var(--slate-12);
-  --sidebar-primary: var(--blue-9);
+  --sidebar-primary: var(--brand-navy);
   --sidebar-primary-foreground: white;
   --sidebar-accent: var(--slate-3);
   --sidebar-accent-foreground: var(--slate-12);
   --sidebar-border: var(--slate-6);
-  --sidebar-ring: var(--slate-8);
+  --sidebar-ring: var(--brand-blue);
 }
 
 [data-theme="dark"] {
@@ -157,10 +167,11 @@
   --dls-canvas: var(--slate-2);
   --dls-surface-muted: var(--slate-3);
   --dls-border: #262626;
-  --dls-accent: #011627;
-  --dls-accent-hover: #0a2540;
-  --dls-accent-fg: #ffffff;
-  --dls-accent-rgb: 1 22 39;
+  --dls-accent: var(--brand-sky);
+  --dls-accent-hover: #85caff;
+  --dls-accent-fg: var(--slate-1);
+  /* Kept in sync with --brand-sky by hand. */
+  --dls-accent-rgb: 94 184 255;
   --dls-secondary-rgb: 176 180 186;
   --dls-text-primary: var(--slate-12);
   --dls-text-secondary: var(--slate-11);
@@ -560,8 +571,9 @@ select:disabled {
   --popover: var(--slate-2);
   --popover-foreground: var(--slate-12);
   --popover-border: var(--slate-5);
-  --primary: var(--blue-10);
-  --primary-foreground: var(--slate-12);
+  --primary: var(--brand-sky);
+  /* Sky is bright: white on it is 2.2:1. The text has to go dark. */
+  --primary-foreground: var(--slate-1);
   --secondary: var(--slate-3);
   --secondary-foreground: var(--slate-12);
   --muted: var(--slate-3);
@@ -572,7 +584,7 @@ select:disabled {
   --warning: var(--amber-11);
   --border: var(--slate-3);
   --input: var(--slate-6);
-  --ring: var(--slate-8);
+  --ring: var(--brand-blue);
   --chart-1: var(--sky-9);
   --chart-2: var(--blue-9);
   --chart-3: var(--indigo-9);
@@ -580,12 +592,12 @@ select:disabled {
   --chart-5: var(--purple-9);
   --sidebar: var(--slate-2);
   --sidebar-foreground: var(--slate-12);
-  --sidebar-primary: var(--blue-9);
-  --sidebar-primary-foreground: var(--slate-12);
+  --sidebar-primary: var(--brand-sky);
+  --sidebar-primary-foreground: var(--slate-1);
   --sidebar-accent: var(--slate-3);
   --sidebar-accent-foreground: var(--slate-12);
   --sidebar-border: var(--slate-6);
-  --sidebar-ring: var(--slate-8);
+  --sidebar-ring: var(--brand-blue);
 }
 
 @theme inline {
