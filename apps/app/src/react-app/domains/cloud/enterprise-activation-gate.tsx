@@ -17,7 +17,7 @@ import { parseManualAuthInput } from "@/app/lib/manual-auth-input";
 import { normalizeOrganizationServerInput } from "@/app/lib/organization-server-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { resolveExtensionIconSrc } from "@/react-app/design-system/extension-icon-src";
+import { BrandMark } from "@/react-app/design-system/brand-mark";
 import { tryOpenBrowserAuthUrl } from "./open-browser-auth";
 
 function subscribeToBootstrap(onStoreChange: () => void) {
@@ -67,7 +67,7 @@ function EnterpriseActivationPage() {
 
     const baseUrl = normalizeOrganizationServerInput(serverInput);
     if (!baseUrl) {
-      setServerError("Enter a valid OpenWork server address.");
+      setServerError("Enter a valid Rantai server address.");
       return;
     }
 
@@ -141,11 +141,11 @@ function EnterpriseActivationPage() {
         setAuthError("We couldn't open your browser automatically. Try again, or paste the sign-in link from your browser into the address field.");
         return;
       }
-      setStatusMessage("Finish signing in in your browser, then return to OpenWork.");
+      setStatusMessage("Finish signing in in your browser, then return to Rantai.");
     } catch (error) {
       setStatusMessage(null);
       setServerError(
-        error instanceof Error ? error.message : "Unable to save this OpenWork server.",
+        error instanceof Error ? error.message : "Unable to save this Rantai server.",
       );
     } finally {
       setBrowserBusy(false);
@@ -190,14 +190,7 @@ function EnterpriseActivationPage() {
           data-testid="enterprise-activation-card"
         >
           <div className="flex items-center gap-2.5">
-            <img
-              src={resolveExtensionIconSrc("/openwork-mark.svg")}
-              alt=""
-              width={26}
-              height={26}
-              className="max-h-[26px] shrink-0 object-contain object-left dark:invert"
-              aria-hidden="true"
-            />
+            <BrandMark className="max-h-[26px]" />
             <span className="text-[15px] font-semibold tracking-tight text-foreground">
               OpenWork Enterprise
             </span>

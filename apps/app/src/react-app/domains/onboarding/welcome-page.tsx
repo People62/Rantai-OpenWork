@@ -4,7 +4,7 @@ import { Dithering } from "@paper-design/shaders-react";
 
 import { t } from "../../../i18n";
 import { useBootState } from "../../shell/boot-state";
-import { resolveExtensionIconSrc } from "@/react-app/design-system/extension-icon-src";
+import { BrandMark } from "@/react-app/design-system/brand-mark";
 import {
   Page,
   PageTitlebarRegion,
@@ -75,14 +75,7 @@ export function WelcomePage({
 
             <div className="relative z-10 w-full max-w-[720px] rounded-3xl border border-border bg-background px-8 pb-12 pt-10 sm:px-16 sm:pb-16 sm:pt-14">
               <div className="flex items-center gap-2.5">
-                <img
-                  src={resolveExtensionIconSrc("/openwork-mark.svg")}
-                  alt=""
-                  width={26}
-                  height={26}
-                  className="shrink-0 dark:invert"
-                  aria-hidden="true"
-                />
+                <BrandMark />
                 <span className="text-[15px] font-semibold tracking-tight text-foreground">
                   {appName}
                 </span>
