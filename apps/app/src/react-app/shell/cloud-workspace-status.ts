@@ -107,7 +107,7 @@ export function cloudWorkspaceTakeoverCopy(input: {
   if (input.variant === "updating") {
     return {
       title: "Updating your workspace…",
-      body: "We’re applying the latest OpenWork image. Your files and sessions come along.",
+      body: "We’re applying the latest Rantai image. Your files and sessions come along.",
     };
   }
   return {

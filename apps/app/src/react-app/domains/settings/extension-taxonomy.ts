@@ -28,7 +28,7 @@ export const extensionInventoryFilters: ExtensionInventoryFilter[] = [
   "plugin",
 ];
 
-/** Built-ins ship with OpenWork and run here, so they are apps. Accounts arrive as org connections. */
+/** Built-ins ship with Rantai and run here, so they are apps. Accounts arrive as org connections. */
 export function taxonomyForDirectoryEntry(entry: McpDirectoryInfo): ExtensionTaxonomy {
   if (isBuiltInOpenWorkExtension(entry) || entry.kind === "ui-control") return "app";
   return "mcp";

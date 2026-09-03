@@ -1142,7 +1142,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
   const installOpenAiImageExtension = useCallback(async (apiKey: string) => {
     const resolvedApiKey = apiKey.trim();
     if (!openworkClient) {
-      setImageExtensionError("OpenWork server is not connected.");
+      setImageExtensionError("Rantai server is not connected.");
       return;
     }
     if (!resolvedApiKey) {
@@ -1156,7 +1156,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
     try {
       await openworkClient.upsertUserEnv([{ key: "OPENAI_API_KEY", value: resolvedApiKey }]);
       setUserEnvKeys((current) => Array.from(new Set([...current, "OPENAI_API_KEY"])));
-      setImageExtensionStatus("Saved OPENAI_API_KEY. Agents can use OpenWork extension actions for image generation.");
+      setImageExtensionStatus("Saved OPENAI_API_KEY. Agents can use Rantai extension actions for image generation.");
     } catch (error) {
       setImageExtensionError(describeRouteError(error));
     } finally {
@@ -1170,7 +1170,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
     const apiKey = input.apiKey.trim();
     const prompt = input.prompt.trim();
     if (!client || !workspaceId) {
-      setImageGenerationError("OpenWork server is not connected for this workspace.");
+      setImageGenerationError("Rantai server is not connected for this workspace.");
       return;
     }
     if (!apiKey) {
@@ -1234,7 +1234,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
 
   const testVoiceSession = useCallback(async () => {
     if (!openworkClient) {
-      setVoiceError("OpenWork server is not connected.");
+      setVoiceError("Rantai server is not connected.");
       return;
     }
     setVoiceBusy(true);
@@ -1242,7 +1242,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
     setVoiceError(null);
     try {
       const session = await openworkClient.createVoiceRealtimeSession();
-      setVoiceStatus(`Realtime ready with ${session.model} (${session.tools.length} OpenWork tools).`);
+      setVoiceStatus(`Realtime ready with ${session.model} (${session.tools.length} Rantai tools).`);
     } catch (error) {
       setVoiceError(describeRouteError(error));
     } finally {
@@ -1255,7 +1255,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
     const workspaceId = runtimeWorkspaceId?.trim() ?? "";
     const modelId = input.modelId.trim();
     if (!client || !workspaceId) {
-      setLocalProviderError("OpenWork server is not connected for this workspace.");
+      setLocalProviderError("Rantai server is not connected for this workspace.");
       return;
     }
     if (!modelId) {
@@ -2132,7 +2132,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
     setRenameWorkspaceBusy(true);
     try {
       if (!openworkClient) {
-        toast.error("OpenWork server is unavailable. Reconnect the server before renaming workspaces.");
+        toast.error("Rantai server is unavailable. Reconnect the server before renaming workspaces.");
         return;
       }
       await openworkClient.updateWorkspaceDisplayName(renameWorkspaceId, trimmed);
@@ -2169,7 +2169,7 @@ function SettingsRouteContent(props: SettingsSurfaceProps = {}) {
       }
       return;
     }
-    throw new Error("OpenWork server is unavailable. Reconnect the server before exporting workspace config.");
+    throw new Error("Rantai server is unavailable. Reconnect the server before exporting workspace config.");
   }, [workspaceServerClientResolver, workspaces]);
 
   const handleForgetWorkspace = useCallback(async (workspaceId: string) => {

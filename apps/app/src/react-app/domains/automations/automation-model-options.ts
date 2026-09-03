@@ -33,7 +33,7 @@ function openWorkManagedModels(provider: DenOrgLlmProvider): AutomationModelOpti
       providerId: "openwork",
       modelId,
       providerName: provider.name,
-      modelName: model.displayName.replace(/^OpenWork:\s*/, ""),
+      modelName: model.displayName.replace(/^Rantai:\s*/, ""),
       accessKind: "openwork_managed" as const,
     }))
 }

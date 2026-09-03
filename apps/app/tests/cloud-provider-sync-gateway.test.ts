@@ -236,7 +236,7 @@ function installProviderSyncFetch(
       }
       if (url.origin === "https://server.example" && url.pathname === "/workspace/ws_1/opencode-config") {
         return jsonResponse(options.conflict
-          ? { content: '{"provider":{"openwork":{"name":"Local OpenWork"}}}' }
+          ? { content: '{"provider":{"openwork":{"name":"Local Rantai"}}}' }
           : null);
       }
       if (url.origin === "https://server.example" && url.pathname === "/workspace/ws_1/engine/reload") {
@@ -340,7 +340,7 @@ describe("cloud provider sync in gateway mode", () => {
     expect(store.getSnapshot().lastSyncError).toEqual({});
   });
 
-  test("records a hand-authored OpenWork collision once and skips later automatic retries", async () => {
+  test("records a hand-authored Rantai collision once and skips later automatic retries", async () => {
     const storage = installWindow({ origin: "https://self-hosted.example" });
     installCloudSession(storage);
     const requests: RecordedRequest[] = [];

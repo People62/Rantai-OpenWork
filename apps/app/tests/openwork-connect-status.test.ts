@@ -48,7 +48,7 @@ describe("OpenWork Connect status", () => {
         statusLabel: "Needs attention",
         tone: "error",
         stageLabel: "Connect settings are unavailable",
-        recommendedAction: "Restart OpenWork. If this continues, run diagnostics.",
+        recommendedAction: "Restart Rantai. If this continues, run diagnostics.",
       });
     }
   });

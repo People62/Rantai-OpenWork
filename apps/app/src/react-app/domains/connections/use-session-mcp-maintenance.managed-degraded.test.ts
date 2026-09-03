@@ -137,7 +137,7 @@ describe("managed MCP secure-storage degradation in session maintenance", () => 
         throw new OpenworkServerError(
           503,
           "managed_mcp_secure_storage_unavailable",
-          "Secure storage for OpenWork-managed MCP credentials is unavailable.",
+          "Secure storage for Rantai-managed MCP credentials is unavailable.",
         );
       },
       getOpenworkCloudMcpHealth: async () => cloudHealth(false),

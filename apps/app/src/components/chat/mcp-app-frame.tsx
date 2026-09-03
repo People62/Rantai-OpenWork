@@ -242,7 +242,7 @@ export function McpAppFrame({ part }: { part: DynamicToolUIPart }) {
             elapsedMs: Math.round(performance.now() - startedAt),
             checkpoints: ["resolve-started"],
           }
-          console.error(`[OpenWork MCP App] ${diagnostic.code}`, diagnostic)
+          console.error(`[Rantai MCP App] ${diagnostic.code}`, diagnostic)
           setError(diagnostic)
         }
       })
@@ -279,7 +279,7 @@ export function McpAppFrame({ part }: { part: DynamicToolUIPart }) {
         checkpoints: [...checkpoints],
         ...(sandboxDocument ? { sandboxDocument } : {}),
       }
-      console.error(`[OpenWork MCP App] ${code}`, diagnostic)
+      console.error(`[Rantai MCP App] ${code}`, diagnostic)
       setError(diagnostic)
     }
     checkpoint("resource-resolved")
@@ -289,14 +289,14 @@ export function McpAppFrame({ part }: { part: DynamicToolUIPart }) {
         "MCP_APP_SANDBOX_ORIGIN_INVALID",
         "sandbox-proxy",
         null,
-        "The sandbox resolved to the same origin as the OpenWork host.",
+        "The sandbox resolved to the same origin as the Rantai host.",
         sandbox.expectedOrigin,
       )
       return
     }
     const bridge = new AppBridge(
       null,
-      { name: "OpenWork", version: "1.0.0" },
+      { name: "Rantai", version: "1.0.0" },
       { serverTools: {} },
       {
         hostContext: {
@@ -311,7 +311,7 @@ export function McpAppFrame({ part }: { part: DynamicToolUIPart }) {
         await openDesktopUrl(url)
         return {}
       } catch (cause) {
-        console.error("[OpenWork MCP App] MCP_APP_OPEN_LINK_BLOCKED", {
+        console.error("[Rantai MCP App] MCP_APP_OPEN_LINK_BLOCKED", {
           toolName: part.toolName,
           message: safeMcpAppDiagnosticMessage(cause, "The link could not be opened."),
         })

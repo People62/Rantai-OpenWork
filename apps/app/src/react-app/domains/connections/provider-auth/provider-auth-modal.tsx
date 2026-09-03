@@ -50,7 +50,7 @@ type ProviderOAuthSession = ProviderOAuthStartResult & {
 };
 
 const PROVIDER_LABELS: Record<string, string> = {
-  openwork: "OpenWork",
+  openwork: "Rantai",
   opencode: "OpenCode Zen",
   openai: "OpenAI",
   anthropic: "Anthropic",
@@ -197,13 +197,13 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
       .sort(compareProviders);
 
     if (props.showOpenWorkModelsSubscribe) {
-      const connectedToOpenWork = connected.has(OPENWORK_MODELS_PROVIDER_ID);
+      const connectedToRantai = connected.has(OPENWORK_MODELS_PROVIDER_ID);
       return [
         {
           id: OPENWORK_MODELS_PROVIDER_ID,
-          name: "OpenWork",
+          name: "Rantai",
           methods: [{ type: "cloud", label: "Subscribe" }],
-          connected: connectedToOpenWork,
+          connected: connectedToRantai,
           env: [],
         },
         ...nextEntries.filter((entry) => entry.id.trim().toLowerCase() !== OPENWORK_MODELS_PROVIDER_ID),
@@ -676,7 +676,7 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
         : "Use OpenAI's device flow when the local browser callback is unreliable.";
     }
     if (method.type === "oauth") {
-      return "Continue in the browser and let OpenWork finish the connection automatically.";
+      return "Continue in the browser and let Rantai finish the connection automatically.";
     }
     if (method.type === "cloud") {
       return "Subscribe to OpenWork Models.";
@@ -684,7 +684,7 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
     if (isOpencodeZenProvider(entry.id)) {
       return "Sign in to OpenCode Zen with an API key to unlock paid models alongside the free tier.";
     }
-    return "Paste a secret key that OpenWork stores locally on this device.";
+    return "Paste a secret key that Rantai stores locally on this device.";
   };
 
   return (

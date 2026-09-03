@@ -41,7 +41,7 @@ export type ExtensionDetailModalProps = {
   iconSlug?: string;
   iconSrc?: string;
   taxonomy?: ExtensionTaxonomy;
-  /** Show the local stdio wrapper setup used by the OpenWork UI MCP. */
+  /** Show the local stdio wrapper setup used by the Rantai UI MCP. */
   uiControl?: boolean;
   connected?: boolean;
   connectedLabel?: string;
@@ -122,7 +122,7 @@ const taxonomyDesc: Record<ExtensionTaxonomy, string> = {
   skill: "A reusable workflow that your agent can execute on demand.",
   command: "A slash command the composer can run in this workspace.",
   agent: "A named agent the composer can run a session as.",
-  plugin: "Extends OpenWork with additional capabilities managed by your organization.",
+  plugin: "Extends Rantai with additional capabilities managed by your organization.",
 };
 
 const uiControlClientConfig = `{
@@ -783,7 +783,7 @@ function UiControlConnectionDetails(props: UiControlConnectionDetailsProps) {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-2 text-sm leading-relaxed text-muted-foreground">
-            <div>OpenWork desktop starts a private localhost bridge automatically.</div>
+            <div>Rantai desktop starts a private localhost bridge automatically.</div>
             <div>Your MCP client starts <span className="font-mono text-card-foreground">openwork-ui-mcp</span> over stdio; the wrapper discovers the bridge and proxies UI tools to it.</div>
             <div>Do not point clients at the random localhost bridge URL directly.</div>
           </div>
