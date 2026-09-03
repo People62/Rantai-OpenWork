@@ -100,6 +100,14 @@
   --brand-blue: #3b8cff;
   --brand-navy: #28468c;
 
+  /* Tinted panels around the app stay on the Radix `blue` family rather than
+     moving to these three. They need a full 12-step scale — a wash, a border
+     and a readable text step — which three literals cannot provide, and blue
+     hosts this palette better than any alternative: its step 9 sits at hue
+     278°, inside the 262–288° range these three span, so nothing it tints
+     drifts more than 16° from a brand colour. Indigo tracks navy more closely
+     but strays 31° from sky, which carries the accent in dark mode. */
+
   color-scheme: light;
   --dls-surface: var(--slate-1);
   --dls-sidebar: var(--slate-2);
