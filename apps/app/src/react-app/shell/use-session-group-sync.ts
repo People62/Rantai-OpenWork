@@ -167,7 +167,10 @@ export function useSessionGroupSync(input: UseSessionGroupSyncInput): void {
       if (!shouldReportSessionGroupFailure({ message, lastMessage, lastReportedAt, now })) return;
       lastMessage = message;
       lastReportedAt = now;
-      toast.warning("Session groups were not saved", { description: message });
+      // An action the user took did not take effect, which is what this
+      // codebase uses toast.error for ("Could not save changes."); warning is
+      // for limitations they need to know about, not for work that was lost.
+      toast.error("Session groups were not saved", { description: message });
     });
 
     return () => setSessionGroupSyncErrorReporter(null);
