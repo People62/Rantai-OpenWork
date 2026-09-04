@@ -154,7 +154,7 @@ describe("gateway runtime mode", () => {
     }
   });
 
-  test("resolves OpenWork server traffic through the gateway origin with the Den session token", async () => {
+  test("resolves Rantai server traffic through the gateway origin with the Den session token", async () => {
     const storage = installWindow({ origin: "https://web.openworklabs.com", gateway: true });
     storage.setItem("openwork.den.authToken", "den-session-token");
     storage.setItem("openwork.server.urlOverride", "https://direct-instance.example.com");
@@ -253,7 +253,7 @@ describe("gateway runtime mode", () => {
     expect(readOpenworkServerSettings().token).toBeUndefined();
   });
 
-  test("uses same-origin and the Den bearer for OpenWork server store env calls behind the gateway", async () => {
+  test("uses same-origin and the Den bearer for Rantai server store env calls behind the gateway", async () => {
     const storage = installWindow({ origin: "https://gw.example", gateway: true });
     storage.setItem("openwork.den.authToken", "den-session-token");
     storage.setItem("openwork.server.urlOverride", "https://direct-instance.example.com");
@@ -279,7 +279,7 @@ describe("gateway runtime mode", () => {
     const store = createTestOpenworkServerStore();
     const snapshot = store.getSnapshot();
     const client = snapshot.openworkServerClient;
-    if (!client) throw new Error("Expected a gateway OpenWork server client");
+    if (!client) throw new Error("Expected a gateway Rantai server client");
 
     expect(snapshot.openworkServerBaseUrl).toBe("https://gw.example");
     expect(snapshot.openworkServerAuth.token).toBe("den-session-token");

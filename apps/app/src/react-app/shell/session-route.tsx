@@ -277,7 +277,7 @@ function describeTaskCreateError(error: unknown) {
     lower.includes("internal_error") ||
     lower.includes("unexpected server error")
   ) {
-    return "OpenCode is unavailable for this workspace. Retry once it restarts, or restart OpenWork if the problem continues.";
+    return "OpenCode is unavailable for this workspace. Retry once it restarts, or restart Rantai if the problem continues.";
   }
   return message;
 }
@@ -1730,7 +1730,7 @@ export function SessionRoute() {
     setRenameWorkspaceBusy(true);
     try {
       if (!client) {
-        toast.error("OpenWork server is unavailable. Reconnect the server before renaming workspaces.");
+        toast.error("Rantai server is unavailable. Reconnect the server before renaming workspaces.");
         return;
       }
       await client.updateWorkspaceDisplayName(renameWorkspaceId, trimmed);
@@ -1779,7 +1779,7 @@ export function SessionRoute() {
         downloadWorkspaceJson(workspaceExportFilename(workspace), payload);
         return;
       }
-      throw new Error("OpenWork server is unavailable. Reconnect the server before exporting workspace config.");
+      throw new Error("Rantai server is unavailable. Reconnect the server before exporting workspace config.");
     },
     [endpointForWorkspace, workspaces],
   );
@@ -2393,7 +2393,7 @@ export function SessionRoute() {
           .catch(() => null);
       }
       if (!list) {
-        throw new Error("OpenWork server is unavailable. Start or reconnect the server before creating a workspace.");
+        throw new Error("Rantai server is unavailable. Start or reconnect the server before creating a workspace.");
       }
       const createdId = resolveWorkspaceListSelectedId(list) || list.workspaces[list.workspaces.length - 1]?.id || "";
       let targetWorkspaceId = createdId;
@@ -2402,7 +2402,7 @@ export function SessionRoute() {
         await workspaceSetSelected(createdId).catch(() => undefined);
         await workspaceSetRuntimeActive(createdId).catch(() => undefined);
       }
-      // First workspace on a fresh install: the OpenWork server was started
+      // First workspace on a fresh install: the Rantai server was started
       // engine-less (it only spawns OpenCode at boot when a workspace already
       // exists), so sessions would hang forever. This boots the engine when
       // it isn't running, same as the old /welcome flow did.
@@ -2504,7 +2504,7 @@ export function SessionRoute() {
         handleOpenCreateWorkspace();
         return;
       }
-      const folder = await joinDesktopPath(home, "OpenWork Chat").catch(() => "");
+      const folder = await joinDesktopPath(home, "Rantai Chat").catch(() => "");
       if (!folder) {
         handleOpenCreateWorkspace();
         return;
@@ -2562,7 +2562,7 @@ export function SessionRoute() {
         list = await client.createRemoteWorkspace(payload).catch(() => null);
       }
       if (!list) {
-        throw new Error("OpenWork server is unavailable. Start or reconnect the server before connecting a remote workspace.");
+        throw new Error("Rantai server is unavailable. Start or reconnect the server before connecting a remote workspace.");
       }
       const createdId = resolveWorkspaceListSelectedId(list) || list.workspaces[list.workspaces.length - 1]?.id || "";
       if (createdId) {

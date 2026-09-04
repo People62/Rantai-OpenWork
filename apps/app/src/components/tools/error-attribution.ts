@@ -132,8 +132,8 @@ export function attributeChatToolError(errorText: string): ToolErrorAttribution 
     || category === "lifecycle_deadline"
   ) {
     return confirmed(
-      "OpenWork timeout",
-      "OpenWork created this deadline. The external operation may still have completed, so verify its state before retrying.",
+      "Rantai timeout",
+      "Rantai created this deadline. The external operation may still have completed, so verify its state before retrying.",
     )
   }
 
@@ -142,7 +142,7 @@ export function attributeChatToolError(errorText: string): ToolErrorAttribution 
     || code === "MCP_URL_BLOCKED"
     || code === "MCP_FETCH_FORBIDDEN_PORT"
   ) {
-    return confirmed("Blocked by OpenWork", "OpenWork blocked the request before it was sent.")
+    return confirmed("Blocked by Rantai", "Rantai blocked the request before it was sent.")
   }
 
   if (httpStatus !== undefined && (httpStatus < 200 || httpStatus >= 300)) {

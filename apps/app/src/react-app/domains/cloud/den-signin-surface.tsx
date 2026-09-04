@@ -8,7 +8,7 @@ import {
 import { Dithering } from "@paper-design/shaders-react";
 
 import { t } from "../../../i18n";
-import { resolveExtensionIconSrc } from "../../design-system/extension-icon-src";
+import { BrandMark } from "../../design-system/brand-mark";
 import { DEFAULT_DEN_BASE_URL } from "../../../app/lib/den";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "../../design-system/text-input";
@@ -71,7 +71,7 @@ const errorBannerClass =
  */
 export function DenSignInSurface(props: DenSignInSurfaceProps) {
   const variant: DenSignInSurfaceVariant = props.variant ?? "panel";
-  const appName = props.appName?.trim() || "OpenWork";
+  const appName = props.appName?.trim() || "Rantai";
 
   /* -- Panel content (reused by both variants) -- */
   const panelContent = (
@@ -240,14 +240,7 @@ export function DenSignInSurface(props: DenSignInSurfaceProps) {
         <div className="relative z-10 flex min-h-dvh items-center justify-center px-6 py-16">
           <div className="w-full max-w-[720px] rounded-3xl border border-border bg-background px-8 pb-12 pt-10 sm:px-16 sm:pb-16 sm:pt-14">
             <div className="flex items-center gap-2.5">
-              <img
-                src={props.logoUrl ?? resolveExtensionIconSrc("/openwork-mark.svg")}
-                alt=""
-                width={26}
-                height={26}
-                className={`max-h-[26px] shrink-0 object-contain object-left ${props.logoUrl ? "" : "dark:invert"}`}
-                aria-hidden="true"
-              />
+              <BrandMark logoUrl={props.logoUrl} className="max-h-[26px]" />
               <span className="text-[15px] font-semibold tracking-tight text-foreground">
                 {appName}
               </span>

@@ -382,7 +382,7 @@ export function useElectronUpdaterState(options: UseElectronUpdaterStateOptions)
         if (!isCurrentRequest()) return;
         const currentVersion = channelState?.currentVersion ?? appVersion;
         if (!currentVersion) {
-          throw new Error("Could not determine the installed OpenWork version.");
+          throw new Error("Could not determine the installed Rantai version.");
         }
 
         const selection = await resolveFreshStableDesktopUpdate({

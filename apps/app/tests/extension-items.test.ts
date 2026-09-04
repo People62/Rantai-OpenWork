@@ -12,7 +12,7 @@ import {
 
 const connectedBuiltIn: McpDirectoryInfo = {
   id: "openwork-browser",
-  name: "OpenWork Browser",
+  name: "Rantai Browser",
   serverName: "openwork-browser",
   description: "Connected by default.",
   oauth: false,
@@ -20,7 +20,7 @@ const connectedBuiltIn: McpDirectoryInfo = {
   extensionManifest: {
     schemaVersion: 1,
     id: "openwork-browser",
-    name: "OpenWork Browser",
+    name: "Rantai Browser",
     description: "Connected by default.",
     source: { format: "openwork-builtin", origin: "builtin", trusted: true },
     resources: [],
@@ -78,7 +78,7 @@ function orgMcpConnection(input: Partial<DenExternalMcpConnection> = {}): DenExt
 }
 
 describe("extension item projection", () => {
-  test("attributes only current OpenWork-provided local skills", () => {
+  test("attributes only current Rantai-provided local skills", () => {
     expect(isOpenworkProvidedSkill({
       name: "skill-creator",
       path: "/workspace/.opencode/skills/skill-creator/SKILL.md",
@@ -113,9 +113,9 @@ describe("extension item projection", () => {
       isBuiltInConnected: (entry) => entry.id === connectedBuiltIn.id,
     });
 
-    expect(result.installedMcpEntries.map((entry) => entry.name)).toEqual(["OpenWork Browser"]);
-    expect(result.builtInItems.map((item) => item.name)).toEqual(["OpenWork Browser", "Computer Use"]);
-    expect(result.quickConnectEntries.map((entry) => entry.name)).toEqual(["OpenWork Browser", "Computer Use"]);
+    expect(result.installedMcpEntries.map((entry) => entry.name)).toEqual(["Rantai Browser"]);
+    expect(result.builtInItems.map((item) => item.name)).toEqual(["Rantai Browser", "Computer Use"]);
+    expect(result.quickConnectEntries.map((entry) => entry.name)).toEqual(["Rantai Browser", "Computer Use"]);
   });
 
   test("projects per-member org MCP grants as Marketplace items until connected", () => {
@@ -214,7 +214,7 @@ describe("resolveExtensionInventoryGroup", () => {
   const baseItem = (overrides: Partial<ExtensionItem> = {}): ExtensionItem => ({
     id: "builtin:openwork-browser",
     source: "builtin",
-    name: "OpenWork Browser",
+    name: "Rantai Browser",
     description: null,
     installState: "installed",
     setupState: "ready",

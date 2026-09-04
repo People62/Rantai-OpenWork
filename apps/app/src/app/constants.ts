@@ -37,7 +37,7 @@ export type McpDirectoryInfo = {
   type?: "remote" | "local";
   command?: string[];
   oauth: boolean;
-  /** Route OAuth through the local OpenWork gateway instead of delegating it to OpenCode. */
+  /** Route OAuth through the local Rantai gateway instead of delegating it to OpenCode. */
   managedOAuth?: boolean;
   /** Identifies MCP entries owned by OpenWork Connect instead of workspace configuration. */
   managedBy?: "openwork-connect";
@@ -54,9 +54,9 @@ export type McpDirectoryInfo = {
   iconSrc?: string;
   /** Prompt inserted from the composer extension picker. */
   composerPrompt?: string;
-  /** Whether OpenWork should show this extension as enabled before user setup. */
+  /** Whether Rantai should show this extension as enabled before user setup. */
   defaultEnabled?: boolean;
-  /** Whether OpenWork should hide this extension from the default catalog view. */
+  /** Whether Rantai should hide this extension from the default catalog view. */
   defaultHidden?: boolean;
   /** Whether this extension is still in preview. */
   preview?: boolean;

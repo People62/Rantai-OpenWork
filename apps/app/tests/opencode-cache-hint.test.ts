@@ -32,7 +32,7 @@ describe("addOpencodeCacheHint", () => {
       "ENOENT: no such file or directory, open '/home/sam/.cache/opencode/fetch_jwks.js'",
     );
 
-    expect(hinted).toContain("Delete /home/sam/.cache/opencode and restart OpenWork");
+    expect(hinted).toContain("Delete /home/sam/.cache/opencode and restart Rantai");
   });
 
   test("never sends people to the disabled Repair cache action", () => {

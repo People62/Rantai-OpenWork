@@ -31,7 +31,7 @@ const connectConfirmDialogSource = readFileSync(
 
 const publicDistribution = {
   flavor: "public" as const,
-  appName: "OpenWork",
+  appName: "Rantai",
   appIdentifier: "com.differentai.openwork",
   protocolScheme: "openwork",
   requireSignin: false,
@@ -133,13 +133,13 @@ describe("enterprise desktop activation", () => {
     expect(activationGateSource).toContain("binds OpenWork Enterprise to it");
     expect(activationGateSource).toContain("Continue in browser");
     expect(activationGateSource).not.toContain('htmlFor="enterprise-openwork-link"');
-    expect(activationGateSource).not.toContain("OpenWork link");
+    expect(activationGateSource).not.toContain("Rantai link");
     expect(activationGateSource).not.toContain("enterprise-openwork-link-connect");
     expect(activationGateSource).toContain("Link this app to your organization");
     expect(activationGateSource).toContain("Enter your workspace address — the page where you downloaded this app. Sign-in finishes in your browser and returns here.");
     expect(activationGateSource).toContain("const pastedLink = parseManualAuthInput(serverInput);");
     expect(activationGateSource).toContain("{pendingConfirmation ? null : (");
-    expect(activationGateSource).not.toContain("Have an OpenWork link");
+    expect(activationGateSource).not.toContain("Have a Rantai link");
     expect(activationGateSource).not.toContain("Use workspace address instead");
     expect(activationGateSource).not.toContain("manualAuthOpen");
     expect(activationGateSource).not.toMatch(/(?:paste|hide) sign-in code/i);

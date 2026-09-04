@@ -63,8 +63,8 @@ export const OPENWORK_MODEL_PREVIEWS: OpenWorkModelPreview[] = Object.entries(
   .filter(([, model]) => model.enabled)
   .map(([id, model]) => ({
     id,
-    title: model.displayName.replace(/^OpenWork:\s*/, ""),
-    subtitle: "OpenWork hosted",
+    title: model.displayName.replace(/^Rantai:\s*/, ""),
+    subtitle: "Rantai hosted",
   }));
 
 export function hasOpenWorkModelsProvider(providerIds: readonly string[]) {

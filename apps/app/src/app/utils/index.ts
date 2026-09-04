@@ -413,7 +413,7 @@ export function addOpencodeCacheHint(message: string, platform?: OpencodeCachePl
   if (cacheSignals.some((signal) => lower.includes(signal)) && lower.includes("enoent")) {
     const location = opencodeCacheRootFromMessage(message)
       ?? OPENCODE_CACHE_LOCATIONS[platform ?? currentOpencodeCachePlatform()];
-    return `${message}\n\nOpenCode cache looks corrupted. Delete ${location} and restart OpenWork to rebuild it.`;
+    return `${message}\n\nOpenCode cache looks corrupted. Delete ${location} and restart Rantai to rebuild it.`;
   }
 
   return message;
@@ -1018,7 +1018,7 @@ const ARTIFACT_OUTPUT_SKIP_TOOLS = new Set(["webfetch"]);
 // Patterns that indicate a path is a truncated system/absolute path rather than a workspace-relative path
 const TRUNCATED_SYSTEM_PATH_PATTERNS = [
   /com\.[^/]+\.(openwork|opencode)/i, // macOS app bundle identifiers
-  /\.openwork\.dev\//i, // OpenWork dev paths
+  /\.openwork\.dev\//i, // Rantai dev paths
   /Application Support\//i, // macOS Application Support
   /AppData[/\\]/i, // Windows AppData
   /\.local\/share\//i, // Linux XDG data

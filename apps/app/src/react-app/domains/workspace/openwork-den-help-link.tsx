@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 
 const SUPPORT_EMAIL = "team@openworklabs.com";
-const SUPPORT_MAILTO = `mailto:${SUPPORT_EMAIL}?subject=OpenWork%20Den%20remote%20worker%20upgrade`;
+const SUPPORT_MAILTO = `mailto:${SUPPORT_EMAIL}?subject=Rantai%20Den%20remote%20worker%20upgrade`;
 
 /**
  * Small inline link rendered inside the remote-worker error card. When clicked,
@@ -40,7 +40,7 @@ export function OpenWorkDenHelpLink() {
             <DialogDescription>
               We recently upgraded our servers. If your remote worker was
               provisioned before that upgrade, it may no longer be compatible
-              with the current OpenWork app.
+              with the current Rantai app.
             </DialogDescription>
           </DialogHeader>
 

@@ -15,7 +15,7 @@ function filteredIds(platform: "darwin" | "linux" | "windows" | "web") {
     .flatMap((entry) => entry.id ? [entry.id] : []);
 }
 
-describe("OpenWork extension catalog platform filter", () => {
+describe("Rantai extension catalog platform filter", () => {
   test("resolves browser runtime to web and desktop runtime to OS", () => {
     expect(resolveOpenWorkExtensionCatalogPlatform("web", "macos")).toEqual("web");
     expect(resolveOpenWorkExtensionCatalogPlatform("desktop", "macos")).toEqual("darwin");
@@ -27,7 +27,7 @@ describe("OpenWork extension catalog platform filter", () => {
     expect(filteredIds("web")).toEqual(["openwork-voice", "ollama"]);
   });
 
-  test("keeps OpenWork Browser desktop-only and Computer Use mac-only", () => {
+  test("keeps Rantai Browser desktop-only and Computer Use mac-only", () => {
     expect(filteredIds("darwin")).toEqual(["openwork-browser", "computer-use", "openwork-voice", "ollama"]);
     expect(filteredIds("linux")).toEqual(["openwork-browser", "openwork-voice", "ollama"]);
   });

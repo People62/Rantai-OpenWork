@@ -34,7 +34,7 @@ describe("Automation model options", () => {
     expect(automationModelOptions([], { includeFreeStarter: false })).toEqual([])
   })
 
-  test("expands the member's managed OpenWork aliases even when Den stores no model rows", () => {
+  test("expands the member's managed Rantai aliases even when Den stores no model rows", () => {
     const options = automationModelOptions([
       provider({ id: "lpr_member_openwork", source: "openwork", name: "OpenWork Models" }),
     ])
@@ -144,7 +144,7 @@ describe("Automation proposal model resolution", () => {
     const managedProvider = provider({ id: "lpr_managed", source: "openwork", name: "OpenWork Models" })
     const managedOption = automationModelOptions([managedProvider]).find((option) => option.accessKind === "openwork_managed")
     expect(managedOption).toBeDefined()
-    if (!managedOption) throw new Error("Expected an enabled OpenWork managed model")
+    if (!managedOption) throw new Error("Expected an enabled Rantai managed model")
     const managed = { providerId: managedOption.providerId, modelId: managedOption.modelId, variant: "high" }
     expect(resolveProposalModel(managed, [managedProvider])).toEqual({ model: managed, resolution: "exact" })
   })
@@ -161,7 +161,7 @@ describe("Automation proposal model resolution", () => {
     })
   })
 
-  test("does not map through OpenWork provider records", () => {
+  test("does not map through Rantai provider records", () => {
     const managed = provider({
       ...customProvider,
       id: "lpr_managed",

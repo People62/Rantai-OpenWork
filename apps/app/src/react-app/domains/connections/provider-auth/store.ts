@@ -584,7 +584,7 @@ export function createProviderAuthStore(options: CreateProviderAuthStoreOptions)
     try {
       if (serverHandlesProviderSync()) {
         const openworkClient = options.openworkServer.getSnapshot().openworkServerClient;
-        if (!openworkClient) throw new Error("OpenWork server unavailable.");
+        if (!openworkClient) throw new Error("Rantai server unavailable.");
         const status = await openworkClient.getCloudProviderSyncStatus();
         const next = Object.fromEntries(status.providers.map((provider) => [provider.cloudProviderId, provider]));
         setStateField("importedCloudProviders", next);
@@ -640,7 +640,7 @@ export function createProviderAuthStore(options: CreateProviderAuthStoreOptions)
     const persisted = await writeWorkspaceOpenworkConfigRecord(nextConfig);
     if (!persisted) {
       throw new Error(
-        "OpenWork server unavailable. Connect to manage imported cloud providers.",
+        "Rantai server unavailable. Connect to manage imported cloud providers.",
       );
     }
     setStateField("importedCloudProviders", nextProviders);
@@ -658,7 +658,7 @@ export function createProviderAuthStore(options: CreateProviderAuthStoreOptions)
     }
 
     if (hasOpenworkTarget) {
-      throw new Error("OpenWork server config API is unavailable for this workspace.");
+      throw new Error("Rantai server config API is unavailable for this workspace.");
     }
 
     if (isLocalWorkspace && isDesktopRuntime() && root) {
@@ -688,7 +688,7 @@ export function createProviderAuthStore(options: CreateProviderAuthStoreOptions)
     }
 
     if (hasOpenworkTarget) {
-      throw new Error("OpenWork server config API is unavailable for this workspace.");
+      throw new Error("Rantai server config API is unavailable for this workspace.");
     }
 
     if (isLocalWorkspace && isDesktopRuntime() && root) {
@@ -712,7 +712,7 @@ export function createProviderAuthStore(options: CreateProviderAuthStoreOptions)
     const { openworkClient, openworkWorkspaceId, canUseOpenworkServer } =
       await resolveOpenworkConfigTarget("write");
     if (!canUseOpenworkServer || !openworkClient || !openworkWorkspaceId) {
-      throw new Error("OpenWork server unavailable. Connect to manage cloud providers.");
+      throw new Error("Rantai server unavailable. Connect to manage cloud providers.");
     }
     await openworkClient.patchConfig(openworkWorkspaceId, {
       opencode: { provider: update },
@@ -726,7 +726,7 @@ export function createProviderAuthStore(options: CreateProviderAuthStoreOptions)
     const { openworkClient, openworkWorkspaceId, canUseOpenworkServer } =
       await resolveOpenworkConfigTarget("write");
     if (!canUseOpenworkServer || !openworkClient || !openworkWorkspaceId) {
-      throw new Error("OpenWork server unavailable. Connect to manage cloud providers.");
+      throw new Error("Rantai server unavailable. Connect to manage cloud providers.");
     }
     const config = await readWorkspaceOpenworkConfigRecord();
     const cloudImports = readWorkspaceCloudImports(config);
@@ -1447,7 +1447,7 @@ export function createProviderAuthStore(options: CreateProviderAuthStoreOptions)
       const shouldUseServerReload = !(
         isDesktopRuntime() && options.selectedWorkspaceDisplay().workspaceType === "local"
       );
-      // Prefer the OpenWork server engine reload: it disposes the engine AND
+      // Prefer the Rantai server engine reload: it disposes the engine AND
       // re-registers runtime-DB MCPs, so non-primary workspaces and pending
       // changes are picked up instead of silently dropping (toggles "turn
       // off").
@@ -1685,7 +1685,7 @@ export function createProviderAuthStore(options: CreateProviderAuthStoreOptions)
           throw new CloudProviderNeedsServerError(
             `${provider.name} needs environment variables (${envEntries
               .map((entry) => entry.key)
-              .join(", ")}) but the OpenWork server is not available.`,
+              .join(", ")}) but the Rantai server is not available.`,
           );
         }
         await openworkClient.upsertUserEnv(envEntries);
@@ -1924,7 +1924,7 @@ export function createProviderAuthStore(options: CreateProviderAuthStoreOptions)
       return;
     }
 
-    // Imports, baseline reads, and persistence all go through the OpenWork
+    // Imports, baseline reads, and persistence all go through the Rantai
     // server target (patchRuntimeProviders throws without it). Running before
     // the target resolves made the baseline read fall back to an empty source
     // and re-import every org provider — engine dispose churn on settings open.
@@ -2090,7 +2090,7 @@ export function createProviderAuthStore(options: CreateProviderAuthStoreOptions)
           `server:${getCloudProviderSyncContextKey()}`,
           async () => {
             const openworkClient = options.openworkServer.getSnapshot().openworkServerClient;
-            if (!openworkClient) throw new Error("OpenWork server unavailable.");
+            if (!openworkClient) throw new Error("Rantai server unavailable.");
             let result = await openworkClient.runCloudProviderSyncNow(reason);
             if (result.status === "no_session") {
               await pushDenSession(true);
