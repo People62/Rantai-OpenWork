@@ -7,17 +7,10 @@
     "frontendDist": "../../app/dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "pnpm --filter @openwork/app dev",
-    "beforeBuildCommand": "pnpm --filter @openwork/app build"
+    "beforeBuildCommand": "VITE_OPENWORK_DEPLOYMENT=web pnpm --filter @openwork/app build"
   },
   "app": {
-    "windows": [
-      {
-        "title": "Rantai (Tauri spike)",
-        "width": 1280,
-        "height": 860,
-        "resizable": true
-      }
-    ],
+    "windows": [],
     "security": {
       "csp": null
     }
