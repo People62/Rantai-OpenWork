@@ -306,7 +306,7 @@ export function PermissionApprovalModal(props: PermissionApprovalModalProps) {
               <div className="mt-3 space-y-3">
                 {detailRows.map((row) => (
                   <div key={row.label}>
-                    <div className="text-[12px] font-medium text-dls-secondary">{row.label}</div>
+                    <div className="text-[12px] text-dls-secondary">{row.label}</div>
                     <div
                       className={`mt-1 rounded-xl border border-dls-border bg-dls-hover/55 px-3 py-2 font-mono text-[12px] leading-5 text-dls-text ${
                         row.multiline ? "max-h-44 overflow-auto whitespace-pre-wrap" : "break-all"

@@ -129,7 +129,7 @@ function KindSection(props: {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
-        <p className="shrink-0 font-mono text-[11px] font-medium tracking-[0.12em] text-dls-secondary">
+        <p className="shrink-0 font-mono text-[11px] tracking-[0.12em] text-dls-secondary">
           {props.label}
         </p>
         <span className="h-px flex-1 bg-dls-border" />

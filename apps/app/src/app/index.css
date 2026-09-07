@@ -108,6 +108,17 @@
   --brand-blue: rgb(var(--brand-blue-rgb));
   --brand-navy: rgb(var(--brand-navy-rgb));
 
+  /* Tinted neutrals: surfaces carry a trace of the brand instead of reading
+     as plain grey. Derived from slate so every step keeps its existing
+     relationship — only the strength is new. Light keeps 4%. */
+  --tinted-1: color-mix(in oklab, var(--slate-1) 96%, var(--brand-navy));
+  --tinted-2: color-mix(in oklab, var(--slate-2) 96%, var(--brand-navy));
+  --tinted-3: color-mix(in oklab, var(--slate-3) 96%, var(--brand-navy));
+  --tinted-4: color-mix(in oklab, var(--slate-4) 96%, var(--brand-navy));
+  --tinted-5: color-mix(in oklab, var(--slate-5) 96%, var(--brand-navy));
+  --tinted-6: color-mix(in oklab, var(--slate-6) 96%, var(--brand-navy));
+
+
   /* Tinted panels around the app stay on the Radix `blue` family rather than
      moving to these three. They need a full 12-step scale — a wash, a border
      and a readable text step — which three literals cannot provide, and blue
@@ -117,12 +128,12 @@
      but strays 31° from sky, which carries the accent in dark mode. */
 
   color-scheme: light;
-  --dls-surface: var(--slate-1);
-  --dls-sidebar: var(--slate-2);
-  --dls-app-bg: var(--slate-1);
-  --dls-background: var(--slate-1);
-  --dls-canvas: var(--slate-2);
-  --dls-surface-muted: var(--slate-3);
+  --dls-surface: var(--tinted-1);
+  --dls-sidebar: var(--tinted-2);
+  --dls-app-bg: var(--tinted-1);
+  --dls-background: var(--tinted-1);
+  --dls-canvas: var(--tinted-2);
+  --dls-surface-muted: var(--tinted-3);
   --dls-border: #f3f4f6;
   --dls-accent: var(--brand-navy);
   --dls-accent-hover: color-mix(in oklab, var(--brand-navy) 82%, black);
@@ -131,31 +142,31 @@
   --dls-secondary-rgb: 96 100 108;
   --dls-text-primary: var(--slate-12);
   --dls-text-secondary: var(--slate-11);
-  --dls-hover: var(--slate-3);
-  --dls-active: var(--slate-5);
+  --dls-hover: var(--tinted-3);
+  --dls-active: var(--tinted-5);
   --dls-radius: 16px;
   --dls-radius-lg: 24px;
   --dls-shell-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
   --dls-card-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-  --background: var(--slate-1);
+  --background: var(--tinted-1);
   --foreground: var(--slate-12);
-  --card: var(--slate-1);
+  --card: var(--tinted-1);
   --card-foreground: var(--slate-12);
-  --popover: var(--slate-1);
+  --popover: var(--tinted-1);
   --popover-foreground: var(--slate-12);
-  --popover-border: var(--slate-5);
+  --popover-border: var(--tinted-5);
   --primary: var(--brand-navy);
   --primary-foreground: white;
-  --secondary: var(--slate-3);
+  --secondary: var(--tinted-3);
   --secondary-foreground: var(--slate-12);
-  --muted: var(--slate-3);
+  --muted: var(--tinted-3);
   --muted-foreground: var(--slate-11);
-  --accent: var(--slate-3);
+  --accent: var(--tinted-3);
   --accent-foreground: var(--slate-12);
   --destructive: var(--red-9);
   --warning: var(--amber-11);
-  --border: var(--slate-5);
-  --input: var(--slate-6);
+  --border: var(--tinted-5);
+  --input: var(--tinted-6);
   --ring: var(--brand-blue);
   --chart-1: var(--sky-9);
   --chart-2: var(--blue-9);
@@ -163,24 +174,24 @@
   --chart-4: var(--violet-9);
   --chart-5: var(--purple-9);
   --radius: 0.45rem;
-  --sidebar: var(--slate-2);
+  --sidebar: var(--tinted-2);
   --sidebar-foreground: var(--slate-12);
   --sidebar-primary: var(--brand-navy);
   --sidebar-primary-foreground: white;
-  --sidebar-accent: var(--slate-3);
+  --sidebar-accent: var(--tinted-3);
   --sidebar-accent-foreground: var(--slate-12);
-  --sidebar-border: var(--slate-6);
+  --sidebar-border: var(--tinted-6);
   --sidebar-ring: var(--brand-blue);
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --dls-surface: var(--slate-1);
-  --dls-sidebar: var(--slate-2);
-  --dls-app-bg: var(--slate-1);
-  --dls-background: var(--slate-1);
-  --dls-canvas: var(--slate-2);
-  --dls-surface-muted: var(--slate-3);
+  --dls-surface: var(--tinted-1);
+  --dls-sidebar: var(--tinted-2);
+  --dls-app-bg: var(--tinted-1);
+  --dls-background: var(--tinted-1);
+  --dls-canvas: var(--tinted-2);
+  --dls-surface-muted: var(--tinted-3);
   --dls-border: #262626;
   --dls-accent: var(--brand-sky);
   --dls-accent-hover: color-mix(in oklab, var(--brand-sky) 82%, white);
@@ -189,8 +200,8 @@
   --dls-secondary-rgb: 176 180 186;
   --dls-text-primary: var(--slate-12);
   --dls-text-secondary: var(--slate-11);
-  --dls-hover: var(--slate-3);
-  --dls-active: var(--slate-5);
+  --dls-hover: var(--tinted-3);
+  --dls-active: var(--tinted-5);
   --dls-shell-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
   --dls-card-shadow: 0 14px 36px rgba(0, 0, 0, 0.24);
 }
@@ -578,39 +589,49 @@ select:disabled {
 
 .dark,
 [data-theme="dark"] {
-  --background: var(--slate-1);
+  /* Tinted neutrals: surfaces carry a trace of the brand instead of reading
+     as plain grey. Derived from slate so every step keeps its existing
+     relationship — only the strength is new. Dark carries 18%. */
+  --tinted-1: color-mix(in oklab, var(--slate-1) 82%, var(--brand-navy));
+  --tinted-2: color-mix(in oklab, var(--slate-2) 82%, var(--brand-navy));
+  --tinted-3: color-mix(in oklab, var(--slate-3) 82%, var(--brand-navy));
+  --tinted-4: color-mix(in oklab, var(--slate-4) 82%, var(--brand-navy));
+  --tinted-5: color-mix(in oklab, var(--slate-5) 82%, var(--brand-navy));
+  --tinted-6: color-mix(in oklab, var(--slate-6) 82%, var(--brand-navy));
+
+  --background: var(--tinted-1);
   --foreground: var(--slate-12);
-  --card: var(--slate-2);
+  --card: var(--tinted-2);
   --card-foreground: var(--slate-12);
-  --popover: var(--slate-2);
+  --popover: var(--tinted-2);
   --popover-foreground: var(--slate-12);
-  --popover-border: var(--slate-5);
+  --popover-border: var(--tinted-5);
   --primary: var(--brand-sky);
   /* Sky is bright: white on it is 2.2:1. The text has to go dark. */
-  --primary-foreground: var(--slate-1);
-  --secondary: var(--slate-3);
+  --primary-foreground: var(--tinted-1);
+  --secondary: var(--tinted-3);
   --secondary-foreground: var(--slate-12);
-  --muted: var(--slate-3);
+  --muted: var(--tinted-3);
   --muted-foreground: var(--slate-10);
-  --accent: var(--slate-3);
+  --accent: var(--tinted-3);
   --accent-foreground: var(--slate-12);
   --destructive: var(--red-9);
   --warning: var(--amber-11);
-  --border: var(--slate-3);
-  --input: var(--slate-6);
+  --border: var(--tinted-3);
+  --input: var(--tinted-6);
   --ring: var(--brand-blue);
   --chart-1: var(--sky-9);
   --chart-2: var(--blue-9);
   --chart-3: var(--indigo-9);
   --chart-4: var(--violet-9);
   --chart-5: var(--purple-9);
-  --sidebar: var(--slate-2);
+  --sidebar: var(--tinted-2);
   --sidebar-foreground: var(--slate-12);
   --sidebar-primary: var(--brand-sky);
-  --sidebar-primary-foreground: var(--slate-1);
-  --sidebar-accent: var(--slate-3);
+  --sidebar-primary-foreground: var(--tinted-1);
+  --sidebar-accent: var(--tinted-3);
   --sidebar-accent-foreground: var(--slate-12);
-  --sidebar-border: var(--slate-6);
+  --sidebar-border: var(--tinted-6);
   --sidebar-ring: var(--brand-blue);
 }
 

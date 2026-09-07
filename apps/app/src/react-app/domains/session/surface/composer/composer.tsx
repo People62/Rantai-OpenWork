@@ -1763,7 +1763,7 @@ export function ReactSessionComposer(props: ComposerProps) {
               */}
               <div className="ml-auto flex shrink-0 items-center gap-1.5">
                 {props.busy && escapeArmed ? (
-                  <span className="self-center pr-1 text-[12px] font-medium text-gray-10 max-lg:hidden">
+                  <span className="self-center pr-1 text-[12px] text-gray-10 max-lg:hidden">
                     {t("composer.escape_to_stop")}
                   </span>
                 ) : null}

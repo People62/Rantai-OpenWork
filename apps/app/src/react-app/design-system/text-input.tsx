@@ -12,7 +12,7 @@ export function TextInput({ label, hint, className, ref, ...rest }: TextInputPro
   return (
     <label className="block">
       {label ? (
-        <div className="mb-1 text-xs font-medium text-dls-secondary">
+        <div className="mb-1 text-xs text-dls-secondary">
           {label}
         </div>
       ) : null}

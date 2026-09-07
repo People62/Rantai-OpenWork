@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/react-app/design-system/theme-toggle";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { t } from "@/i18n";
@@ -477,6 +478,12 @@ export function AccountStatusMenu(props: AccountStatusMenuProps) {
           </DropdownMenuItem>
         ) : null}
         {connectNeedsAttention || promoVisible ? <DropdownMenuSeparator /> : null}
+
+        <div className="flex items-center justify-between gap-3 px-2 py-1.5">
+          <span className="text-xs text-muted-foreground">{t("settings.theme_title")}</span>
+          <ThemeToggle />
+        </div>
+        <DropdownMenuSeparator />
 
         {props.showSettingsButton !== false ? (
           <DropdownMenuItem onClick={openSettings}>

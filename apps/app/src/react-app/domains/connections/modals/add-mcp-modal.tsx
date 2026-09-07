@@ -181,7 +181,7 @@ export function AddMcpModal(props: AddMcpModalProps) {
           />
 
           <div>
-            <div className="mb-1 text-xs font-medium text-dls-secondary">
+            <div className="mb-1 text-xs text-dls-secondary">
               {t("mcp.server_type")}
             </div>
             <div className="flex items-center gap-1.5">

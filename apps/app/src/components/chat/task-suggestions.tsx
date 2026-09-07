@@ -52,7 +52,7 @@ export function TaskSuggestions({ className }: TaskSuggestionsProps) {
 
   return (
     <div className={cn("@container flex flex-col gap-4 pt-1", className)}>
-      <p className="text-muted-foreground font-medium select-none">
+      <p className="text-muted-foreground select-none">
         {noProviders
           ? "Connect a model provider to get started:"
           : hasOrganizationPrompts

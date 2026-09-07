@@ -194,7 +194,7 @@ export function PluginsView(props: PluginsViewProps) {
                           key={`${plugin.packageName}:step:${step.title}:${step.command ?? step.url ?? step.path ?? step.description}`}
                           className="space-y-1"
                         >
-                          <div className="text-xs font-medium text-gray-11">
+                          <div className="text-xs text-gray-11">
                             {idx + 1}. {step.title}
                           </div>
                           <div className="text-xs text-gray-10">
