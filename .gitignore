@@ -75,3 +75,7 @@ evals/results/
 
 # Warden local run logs
 .warden/logs/
+
+# Tauri spike: Rust build output and generated schemas
+apps/desktop-tauri/src-tauri/target/
+apps/desktop-tauri/src-tauri/gen/
