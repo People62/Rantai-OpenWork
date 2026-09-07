@@ -1,0 +1,10 @@
+{
+  "name": "@openwork/desktop-tauri",
+  "version": "0.0.0-spike",
+  "private": true,
+  "description": "Stage 1 Tauri spike. Not shipped; Electron remains the desktop shell.",
+  "scripts": {
+    "dev": "cargo tauri dev",
+    "build": "cargo tauri build"
+  }
+}

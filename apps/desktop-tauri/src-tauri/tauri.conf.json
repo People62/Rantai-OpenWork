@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Rantai (Tauri spike)",
+  "version": "0.0.0",
+  "identifier": "com.differentai.rantai.tauri-spike",
+  "build": {
+    "frontendDist": "../../app/dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "pnpm --filter @openwork/app dev",
+    "beforeBuildCommand": "pnpm --filter @openwork/app build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Rantai (Tauri spike)",
+        "width": 1280,
+        "height": 860,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": false,
+    "targets": []
+  }
+}
