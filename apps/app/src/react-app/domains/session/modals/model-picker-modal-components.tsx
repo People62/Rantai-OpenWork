@@ -335,7 +335,7 @@ function ModelBehaviorOptions(props: {
 }) {
   return (
     <div role="presentation" className="mt-3 flex items-center gap-2" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-      <span className="text-[11px] font-medium text-gray-10 mr-1">{props.opt.behaviorTitle}:</span>
+      <span className="text-[11px] text-gray-10 mr-1">{props.opt.behaviorTitle}:</span>
       <div className="flex flex-wrap items-center gap-3">
         {(props.opt.behaviorOptions ?? []).map((option) => (
           <button

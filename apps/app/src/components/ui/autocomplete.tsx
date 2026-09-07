@@ -173,7 +173,7 @@ export function AutocompleteGroupLabel({
   return (
     <AutocompletePrimitive.GroupLabel
       className={cn(
-        "px-2 py-1.5 font-medium text-muted-foreground text-xs",
+        "px-2 py-1.5 text-muted-foreground text-xs",
         className,
       )}
       data-slot="autocomplete-group-label"
@@ -264,7 +264,7 @@ export function AutocompleteStatus({
   return (
     <AutocompletePrimitive.Status
       className={cn(
-        "px-3 py-2 font-medium text-muted-foreground text-xs empty:m-0 empty:p-0",
+        "px-3 py-2 text-muted-foreground text-xs empty:m-0 empty:p-0",
         className,
       )}
       data-slot="autocomplete-status"

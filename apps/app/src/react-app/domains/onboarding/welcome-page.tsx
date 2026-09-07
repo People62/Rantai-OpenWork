@@ -140,7 +140,7 @@ export function WelcomePage({
 
                 {showManualFolder ? (
                   <div className="rounded-xl border border-dashed border-border p-3">
-                    <label className="grid gap-2 text-xs font-medium text-muted-foreground">
+                    <label className="grid gap-2 text-xs text-muted-foreground">
                       Daytona folder path
                       <input
                         className="h-9 rounded-md border border-input bg-background px-3 text-sm font-normal text-foreground outline-none focus:border-ring"

@@ -2132,7 +2132,7 @@ function McpConfiguredServersSection(props: {
       ) : (
         <div className="rounded-xl border border-dashed border-dls-border px-5 py-10 text-center">
           <Unplug size={24} className="mx-auto mb-3 text-dls-secondary/30" />
-          <div className="text-sm font-medium text-dls-secondary">{t("mcp.no_apps_yet")}</div>
+          <div className="text-sm text-dls-secondary">{t("mcp.no_apps_yet")}</div>
           <div className="mt-1 text-xs text-dls-secondary/60">{t("mcp.no_apps_hint")}</div>
         </div>
       )}

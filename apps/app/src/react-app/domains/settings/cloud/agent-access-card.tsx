@@ -451,7 +451,7 @@ function AgentAccessAdvanced(props: {
     <div className="border-t border-dls-border pt-3" data-testid="agent-access-advanced">
       <button
         type="button"
-        className="flex items-center gap-1 text-xs font-medium text-dls-secondary transition-colors hover:text-dls-text"
+        className="flex items-center gap-1 text-xs text-dls-secondary transition-colors hover:text-dls-text"
         aria-expanded={props.open}
         onClick={props.onToggle}
       >

@@ -495,7 +495,7 @@ function TodoPanel(props: { todos: TodoItem[] }) {
           onClick={() => setExpanded((current) => !current)}
         >
           <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-11">{label}</span>
+            <span className="text-gray-11">{label}</span>
           </div>
           <Minimize2 size={12} className={`text-gray-8 transition-transform ${expanded ? "" : "rotate-180"}`} />
         </button>

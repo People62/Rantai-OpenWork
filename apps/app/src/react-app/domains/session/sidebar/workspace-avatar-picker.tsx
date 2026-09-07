@@ -89,7 +89,7 @@ export function WorkspaceAvatarPicker({
         onClick={(event) => event.stopPropagation()}
         onPointerDown={(event) => event.stopPropagation()}
       >
-        <p className="text-xs font-medium text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t("workspace_list.avatar_color")}
         </p>
         <div className="grid grid-cols-5 gap-2">
