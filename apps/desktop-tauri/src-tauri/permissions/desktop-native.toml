@@ -1,0 +1,7 @@
+# Tauri refuses app commands from remote origins unless a permission grants
+# them. The interface is served by openwork-server, so this is required — a
+# local-file build would never have needed it.
+[[permission]]
+identifier = "allow-desktop-native"
+description = "Lets the interface reach the native half of the desktop bridge (file dialogs, shell, window chrome)."
+commands.allow = ["desktop_native"]

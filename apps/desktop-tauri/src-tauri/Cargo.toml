@@ -2,7 +2,7 @@
 name = "rantai-tauri-spike"
 version = "0.0.0"
 edition = "2021"
-description = "Stage 1 spike: does the Rantai interface render under the system webview?"
+description = "Migration spike: the Rantai interface on Tauri, with the desktop bridge as a Node sidecar."
 publish = false
 
 [build-dependencies]
@@ -10,6 +10,9 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 
 [profile.dev]
 incremental = true
