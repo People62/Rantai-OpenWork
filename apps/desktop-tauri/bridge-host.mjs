@@ -15,7 +15,7 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 import os from "node:os";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { createWorkspaceStore } from "../desktop/electron/workspace-store.mjs";
@@ -33,6 +33,11 @@ const SERVER_PORT = 8799;
 // WebKitGTK had ever been checked against.
 const SMOKE = process.env.RANTAI_SPIKE_SMOKE === "1";
 const SMOKE_TIMEOUT_MS = Number(process.env.RANTAI_SPIKE_SMOKE_TIMEOUT_MS ?? 120000);
+// The webview keeps allocating for a while after the interface first responds
+// — WebKitGTK was seen going from 417 MB to 615 MB inside a few seconds. A
+// single early sample is not a number worth comparing across platforms, so the
+// run settles first.
+const SMOKE_SETTLE_MS = Number(process.env.RANTAI_SPIKE_SETTLE_MS ?? 25000);
 const SERVER_TOKEN = randomUUID();
 const SERVER_HOST_TOKEN = randomUUID();
 const BRIDGE_TOKEN = randomUUID();
@@ -280,8 +285,87 @@ function recordSignal(name) {
   if (SIGNALS[name] === false) {
     SIGNALS[name] = true;
     console.error(`[smoke] ${name}: ok`);
-    if (Object.values(SIGNALS).every(Boolean)) finishSmoke(0, "all signals seen");
+    if (Object.values(SIGNALS).every(Boolean)) {
+      console.error(`[smoke] all signals seen; settling ${SMOKE_SETTLE_MS}ms before measuring`);
+      setTimeout(() => finishSmoke(0, "all signals seen"), SMOKE_SETTLE_MS);
+    }
   }
+}
+
+/// Memory for the whole spike, sampled the moment it is known to be up.
+///
+/// RSS, not PSS: /proc is a Linux luxury, and the point of measuring here is a
+/// number taken the same way on all three platforms. Shared pages therefore
+/// count once per process — a distortion worth remembering, though a small one
+/// for Tauri, which runs five processes where Electron runs seven.
+///
+/// The tree is rooted at the parent, because that is the Tauri process: this
+/// host is its child, and the webview is its sibling.
+const SAMPLER_NAMES = new Set(["ps", "powershell", "powershell.exe", "conhost.exe"]);
+
+function sampleMemory() {
+  const rows = [];
+  try {
+    if (process.platform === "win32") {
+      const out = execFileSync("powershell", [
+        "-NoProfile", "-Command",
+        "Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,WorkingSetSize,Name | ConvertTo-Json -Compress",
+      ], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
+      for (const row of JSON.parse(out)) {
+        rows.push({
+          pid: row.ProcessId,
+          ppid: row.ParentProcessId,
+          kb: Math.round((row.WorkingSetSize ?? 0) / 1024),
+          name: row.Name,
+        });
+      }
+    } else {
+      const out = execFileSync("ps", ["-Ao", "pid=,ppid=,rss=,comm="], { encoding: "utf8" });
+      for (const line of out.split("\n")) {
+        const match = line.trim().match(/^(\d+)\s+(\d+)\s+(\d+)\s+(.*)$/);
+        if (match) {
+          rows.push({
+            pid: Number(match[1]),
+            ppid: Number(match[2]),
+            kb: Number(match[3]),
+            name: match[4].split("/").pop(),
+          });
+        }
+      }
+    }
+  } catch (error) {
+    return { error: String(error?.message ?? error) };
+  }
+
+  const children = new Map();
+  for (const row of rows) {
+    if (!children.has(row.ppid)) children.set(row.ppid, []);
+    children.get(row.ppid).push(row);
+  }
+
+  const byPid = new Map(rows.map((row) => [row.pid, row]));
+  const root = process.ppid;
+  const tree = [];
+  const stack = [root];
+  const seen = new Set();
+  while (stack.length) {
+    const pid = stack.pop();
+    if (seen.has(pid)) continue;
+    seen.add(pid);
+    const row = byPid.get(pid);
+    // Skip the ps/powershell this function just spawned; it is an artefact of
+    // measuring, not part of what is being measured.
+    if (row && !(row.ppid === process.pid && SAMPLER_NAMES.has(row.name))) tree.push(row);
+    for (const child of children.get(pid) ?? []) stack.push(child.pid);
+  }
+
+  tree.sort((a, b) => b.kb - a.kb);
+  return {
+    unit: "MB, RSS",
+    settledMs: SMOKE_SETTLE_MS,
+    totalMb: Math.round(tree.reduce((sum, row) => sum + row.kb, 0) / 1024),
+    processes: tree.map((row) => ({ name: row.name, mb: Math.round(row.kb / 1024) })),
+  };
 }
 
 let smokeDone = false;
@@ -294,6 +378,9 @@ function finishSmoke(code, reason) {
     platform: process.platform,
     signals: SIGNALS,
     unservedCommands: [...missing.keys()],
+    // Only meaningful once the interface is actually up, which is what a
+    // passing run means; a timed-out run measures a half-built window.
+    memory: code === 0 ? sampleMemory() : null,
   };
   console.error(`[smoke] ${code === 0 ? "PASS" : "FAIL"} ${JSON.stringify(report)}`);
   try {

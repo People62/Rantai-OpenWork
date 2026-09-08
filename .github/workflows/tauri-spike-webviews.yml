@@ -108,6 +108,7 @@ jobs:
         env:
           RANTAI_SPIKE_SMOKE: "1"
           RANTAI_SPIKE_SMOKE_TIMEOUT_MS: "180000"
+          RANTAI_SPIKE_SETTLE_MS: "25000"
         run: |
           set -euo pipefail
           binary=src-tauri/target/release/rantai-tauri-spike
