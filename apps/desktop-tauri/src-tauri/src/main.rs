@@ -28,10 +28,25 @@ struct BridgeReady {
 }
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    let resolved = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../..")
         .canonicalize()
-        .expect("cannot resolve the repository root")
+        .expect("cannot resolve the repository root");
+
+    // canonicalize returns an extended-length path on Windows (\\?\C:\...),
+    // and that prefix is handed straight to bun as a script argument. Strip it
+    // back to an ordinary drive path.
+    #[cfg(windows)]
+    {
+        let text = resolved.to_string_lossy().to_string();
+        if let Some(stripped) = text.strip_prefix(r"\\?\") {
+            if !stripped.starts_with("UNC\\") {
+                return PathBuf::from(stripped);
+            }
+        }
+    }
+
+    resolved
 }
 
 /// Starts the bridge host and blocks until it reports its port, so the window
