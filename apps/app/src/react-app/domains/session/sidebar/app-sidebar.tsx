@@ -1154,13 +1154,23 @@ export function AppSidebar(props: AppSidebarProps) {
                 <SidebarMenuButton
                   onClick={props.onOpenSessionSearch}
                   aria-keyshortcuts={isMacPlatform() ? "Meta+Shift+F" : "Control+Shift+F"}
+                  title={`${t("workspace_list.search_sessions")} · ${isMacPlatform() ? "⌘⇧F" : "Ctrl+Shift+F"}`}
                   className="text-sidebar-foreground/70"
                 >
                   <Search className="size-4" />
                   <span className="flex-1 truncate">{t("workspace_list.search_sessions")}</span>
-                  <kbd className="ml-auto font-sans text-[11px] tracking-wide text-sidebar-foreground/50 max-lg:hidden pointer-coarse:hidden">
-                    {isMacPlatform() ? "⌘⇧F" : "Ctrl+Shift+F"}
-                  </kbd>
+                  {/* The hint only earns its place where it fits. The sidebar is a
+                      fixed 204px whatever the window does, so the old max-lg:hidden
+                      guarded against the wrong thing: "Ctrl+Shift+F" takes 73px and
+                      pushes the label from the 104px it needs down to 79, which is
+                      how "Search sessions" became "Search se…" on Windows and Linux.
+                      The three-glyph mac form fits with room to spare. The shortcut
+                      itself is still on the button, in aria-keyshortcuts and title. */}
+                  {isMacPlatform() ? (
+                    <kbd className="ml-auto font-sans text-[11px] tracking-wide text-sidebar-foreground/50 pointer-coarse:hidden">
+                      ⌘⇧F
+                    </kbd>
+                  ) : null}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ) : null}
