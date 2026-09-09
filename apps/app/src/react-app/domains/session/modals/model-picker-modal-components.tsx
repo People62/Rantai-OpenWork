@@ -188,7 +188,7 @@ function ModelPickerSections(props: {
       />
       {props.otherOptions.length > 0 ? (
         <section className="space-y-2">
-          <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-9">
+          <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             {t("model_picker.more_providers")}
           </div>
           {props.otherOptions.map((provider) => (
@@ -205,7 +205,7 @@ function ModelPickerSections(props: {
         </section>
       ) : null}
       {props.renderedCount === 0 ? (
-        <div className="rounded-2xl border border-gray-6/70 bg-gray-1/40 px-4 py-6 text-sm text-gray-10">
+        <div className="rounded-2xl border border-gray-6/70 bg-gray-1/40 px-4 py-6 text-sm text-muted-foreground">
           {t("model_picker.no_results")}
         </div>
       ) : null}
@@ -226,7 +226,7 @@ function ModelOptionsSection(props: {
   if (props.options.length === 0) return null;
   return (
     <section className="space-y-2">
-      <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-9">
+      <div className="px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {props.title}
       </div>
       {props.options.map(({ opt, index }) => (
@@ -275,7 +275,7 @@ function ModelOptionRow(props: {
           ? "bg-gray-3 text-gray-12"
           : isKeyboardActive
             ? "bg-gray-2 text-gray-12"
-            : "text-gray-10 hover:bg-gray-1/70 hover:text-gray-11",
+            : "text-muted-foreground hover:bg-gray-1/70 hover:text-gray-11",
       ].join(" ")}
       onMouseEnter={() => props.onSetActiveIndex(props.index)}
       onClick={selectOption}
@@ -292,7 +292,7 @@ function ModelOptionRow(props: {
           size={16}
           className={[
             "mt-[1px] shrink-0 transition-colors",
-            active ? "text-gray-12" : "text-gray-10 group-hover:text-gray-11",
+            active ? "text-gray-12" : "text-muted-foreground group-hover:text-gray-11",
           ].join(" ")}
         />
         <div className="flex-1 min-w-0">
@@ -311,14 +311,14 @@ function ModelOptionRow(props: {
               ) : null}
             </span>
           </div>
-          <div className={["mt-0.5 flex items-center gap-3 text-[11px]", active ? "text-gray-10" : "text-gray-9 group-hover:text-gray-10"].join(" ")}>
+          <div className={["mt-0.5 flex items-center gap-3 text-[11px]", active ? "text-muted-foreground" : "text-muted-foreground group-hover:text-muted-foreground"].join(" ")}>
             <span className="truncate">{opt.description ?? opt.providerID}</span>
             <span className="ml-auto opacity-70 font-mono">
               {opt.providerID}/{opt.modelID}
             </span>
           </div>
           {opt.footer ? (
-            <div className={["text-[11px] mt-1", active ? "text-gray-10" : "text-gray-8 group-hover:text-gray-9"].join(" ")}>
+            <div className={["text-[11px] mt-1", active ? "text-muted-foreground" : "text-gray-8 group-hover:text-muted-foreground"].join(" ")}>
               {opt.footer}
             </div>
           ) : null}
@@ -335,7 +335,7 @@ function ModelBehaviorOptions(props: {
 }) {
   return (
     <div role="presentation" className="mt-3 flex items-center gap-2" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-      <span className="text-[11px] text-gray-10 mr-1">{props.opt.behaviorTitle}:</span>
+      <span className="text-[11px] text-muted-foreground mr-1">{props.opt.behaviorTitle}:</span>
       <div className="flex flex-wrap items-center gap-3">
         {(props.opt.behaviorOptions ?? []).map((option) => (
           <button
@@ -343,7 +343,7 @@ function ModelBehaviorOptions(props: {
             type="button"
             className={[
               "text-[11px] transition-colors",
-              props.opt.behaviorValue === option.value ? "text-gray-12 font-semibold" : "text-gray-10 hover:text-gray-12",
+              props.opt.behaviorValue === option.value ? "text-gray-12 font-semibold" : "text-muted-foreground hover:text-gray-12",
             ].join(" ")}
             onClick={(event) => {
               event.preventDefault();
@@ -380,7 +380,7 @@ function ProviderLinkRow(props: {
       ref={props.registerOptionRef(props.provider.index)}
       className={[
         "group w-full text-left rounded-xl px-3 py-2.5 transition-colors cursor-pointer",
-        isKeyboardActive ? "bg-gray-2 text-gray-12" : "text-gray-10 hover:bg-gray-1/70 hover:text-gray-11",
+        isKeyboardActive ? "bg-gray-2 text-gray-12" : "text-muted-foreground hover:bg-gray-1/70 hover:text-gray-11",
       ].join(" ")}
       onMouseEnter={() => props.onSetActiveIndex(props.provider.index)}
       onClick={openProviderSettings}
@@ -397,14 +397,14 @@ function ProviderLinkRow(props: {
           size={16}
           className={[
             "mt-[1px] shrink-0 transition-colors",
-            isKeyboardActive ? "text-gray-12" : "text-gray-10 group-hover:text-gray-11",
+            isKeyboardActive ? "text-gray-12" : "text-muted-foreground group-hover:text-gray-11",
           ].join(" ")}
         />
         <div className="flex-1 min-w-0">
           <div className="text-[13px] flex items-center justify-between gap-2 text-current">
             <span className="truncate">{props.provider.title}</span>
           </div>
-          <div className={["mt-0.5 flex items-center gap-3 text-[11px]", isKeyboardActive ? "text-gray-10" : "text-gray-9 group-hover:text-gray-10"].join(" ")}>
+          <div className={["mt-0.5 flex items-center gap-3 text-[11px]", isKeyboardActive ? "text-muted-foreground" : "text-muted-foreground group-hover:text-muted-foreground"].join(" ")}>
             <span className="truncate">{t("model_picker.connect_provider_hint")}</span>
             <span className="ml-auto opacity-70">{t("model_picker.model_count", { count: props.provider.matchCount })}</span>
           </div>

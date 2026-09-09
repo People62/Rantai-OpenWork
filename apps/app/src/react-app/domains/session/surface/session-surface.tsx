@@ -491,7 +491,7 @@ function TodoPanel(props: { todos: TodoItem[] }) {
     <div className="overflow-hidden border-b border-dls-border bg-transparent">
         <button
           type="button"
-          className="flex w-full items-center justify-between px-4 py-3 text-xs text-gray-9 transition-colors hover:bg-gray-2/50"
+          className="flex w-full items-center justify-between px-4 py-3 text-xs text-muted-foreground transition-colors hover:bg-gray-2/50"
           onClick={() => setExpanded((current) => !current)}
         >
           <div className="flex items-center gap-2">
@@ -522,8 +522,8 @@ function TodoPanel(props: { todos: TodoItem[] }) {
                       {done ? <Check size={10} /> : active ? <span className="size-1.5 rounded-full bg-amber-9" /> : null}
                     </div>
                   </div>
-                  <div className={`flex-1 text-sm leading-relaxed ${cancelled ? "text-gray-9 line-through" : "text-gray-12"}`}>
-                    <span className="mr-1.5 text-gray-9">{index + 1}.</span>
+                  <div className={`flex-1 text-sm leading-relaxed ${cancelled ? "text-muted-foreground line-through" : "text-gray-12"}`}>
+                    <span className="mr-1.5 text-muted-foreground">{index + 1}.</span>
                     {todo.content}
                   </div>
                 </div>

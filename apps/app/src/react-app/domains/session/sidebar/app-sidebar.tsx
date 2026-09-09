@@ -688,7 +688,7 @@ function RemoteConnectionIssueCard(props: {
             <div className="text-[12px] font-medium text-dls-text">
               {t("workspace_list.remote_worker_unavailable")}
             </div>
-            <div className="mt-1 text-[11px] leading-5 text-gray-10">
+            <div className="mt-1 text-[11px] leading-5 text-muted-foreground">
               {t("workspace_list.remote_worker_unavailable_hint")}
             </div>
             <div

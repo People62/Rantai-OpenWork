@@ -636,10 +636,10 @@ export function McpAuthModal(props: McpAuthModalProps) {
               </div>
               <div className="space-y-2">
                 <p className="text-sm font-medium text-gray-12">{t("mcp.auth.waiting_authorization")}</p>
-                <p className="text-xs text-gray-10">{t("mcp.auth.follow_browser_steps")}</p>
+                <p className="text-xs text-muted-foreground">{t("mcp.auth.follow_browser_steps")}</p>
                 <button
                   type="button"
-                  className="text-xs text-gray-10 underline underline-offset-2 transition-colors hover:text-gray-11"
+                  className="text-xs text-muted-foreground underline underline-offset-2 transition-colors hover:text-gray-11"
                   onClick={handleRetry}
                 >
                   {t("mcp.auth.reopen_browser_link")}
@@ -659,7 +659,7 @@ export function McpAuthModal(props: McpAuthModalProps) {
                     ? t("mcp.auth.waiting_for_conversation_title")
                     : t("mcp.auth.applying_changes_title")}
                 </p>
-                <p className="text-xs text-gray-10">
+                <p className="text-xs text-muted-foreground">
                   {props.reloadBlocked
                     ? t("mcp.auth.waiting_for_conversation_body")
                     : t("mcp.auth.applying_changes_body")}
@@ -705,7 +705,7 @@ export function McpAuthModal(props: McpAuthModalProps) {
                   </p>
                 </div>
               </div>
-              <p className="text-xs text-gray-10">{t("mcp.auth.configured_previously")}</p>
+              <p className="text-xs text-muted-foreground">{t("mcp.auth.configured_previously")}</p>
             </div>
           ) : null}
 
@@ -787,7 +787,7 @@ export function McpAuthModal(props: McpAuthModalProps) {
           {!isBusy && authorizationUrl && props.isRemoteWorkspace && !alreadyConnected ? (
             <div className="space-y-3 rounded-xl border border-gray-6/60 bg-gray-1/40 p-4">
               <div className="text-xs font-medium text-gray-12">{t("mcp.auth.manual_finish_title")}</div>
-              <div className="text-xs text-gray-10">{t("mcp.auth.manual_finish_hint")}</div>
+              <div className="text-xs text-muted-foreground">{t("mcp.auth.manual_finish_hint")}</div>
               <div className="flex items-center gap-3 rounded-xl border border-gray-6/70 bg-gray-2/40 px-3 py-2">
                 <div className="min-w-0 flex-1">
                   <div className="text-[10px] uppercase tracking-wide text-gray-8">
@@ -805,7 +805,7 @@ export function McpAuthModal(props: McpAuthModalProps) {
                 value={callbackInput}
                 onChange={(event) => setCallbackInput(event.currentTarget.value)}
               />
-              <div className="text-[11px] text-gray-9">{t("mcp.auth.port_forward_hint")}</div>
+              <div className="text-[11px] text-muted-foreground">{t("mcp.auth.port_forward_hint")}</div>
               <div className="flex justify-end">
                 <Button
                   onClick={() => void handleManualComplete()}
@@ -827,7 +827,7 @@ export function McpAuthModal(props: McpAuthModalProps) {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-12">{t("mcp.auth.step1_title")}</p>
-                    <p className="mt-1 text-xs text-gray-10">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {t("mcp.auth.step1_description", { server: serverName })}
                     </p>
                   </div>
@@ -839,7 +839,7 @@ export function McpAuthModal(props: McpAuthModalProps) {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-12">{t("mcp.auth.step2_title")}</p>
-                    <p className="mt-1 text-xs text-gray-10">{t("mcp.auth.step2_description")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t("mcp.auth.step2_description")}</p>
                   </div>
                 </div>
 
@@ -849,7 +849,7 @@ export function McpAuthModal(props: McpAuthModalProps) {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-12">{t("mcp.auth.step3_title")}</p>
-                    <p className="mt-1 text-xs text-gray-10">{t("mcp.auth.step3_description")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t("mcp.auth.step3_description")}</p>
                   </div>
                 </div>
               </div>
@@ -857,10 +857,10 @@ export function McpAuthModal(props: McpAuthModalProps) {
               <div className="rounded-xl border border-gray-6/60 bg-gray-1/40 p-4 text-sm text-gray-11">
                 <div className="space-y-3">
                   <p>{t("mcp.auth.waiting_authorization")}</p>
-                  <p className="text-xs text-gray-10">{t("mcp.auth.follow_browser_steps")}</p>
+                  <p className="text-xs text-muted-foreground">{t("mcp.auth.follow_browser_steps")}</p>
                   <button
                     type="button"
-                    className="text-left text-xs text-gray-10 underline underline-offset-2 transition-colors hover:text-gray-11"
+                    className="text-left text-xs text-muted-foreground underline underline-offset-2 transition-colors hover:text-gray-11"
                     onClick={handleRetry}
                   >
                     {t("mcp.auth.reopen_browser_link")}
