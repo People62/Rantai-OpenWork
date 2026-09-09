@@ -195,7 +195,7 @@ function StatusChip(props: {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold",
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium",
         props.status === "passed" && "border-green-7/30 bg-green-2 text-green-11",
         props.status === "warning" && "border-amber-7/30 bg-amber-2 text-amber-11",
         props.status === "failed" && "border-red-7/30 bg-red-2 text-red-11",

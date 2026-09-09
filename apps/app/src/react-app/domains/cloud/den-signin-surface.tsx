@@ -323,7 +323,7 @@ export function DenSignInSurface(props: DenSignInSurfaceProps) {
                     />
                     <button
                       type="button"
-                      className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-full bg-dls-accent px-4 text-xs font-semibold text-[var(--dls-accent-fg)] transition-all hover:bg-[var(--dls-accent-hover)] disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-full bg-dls-accent px-4 text-xs font-medium text-[var(--dls-accent-fg)] transition-all hover:bg-[var(--dls-accent-hover)] disabled:opacity-60 disabled:cursor-not-allowed"
                       onClick={props.onSubmitManualAuth}
                       disabled={
                         props.authBusy ||
@@ -370,7 +370,7 @@ export function DenSignInSurface(props: DenSignInSurfaceProps) {
                     </button>
                     <button
                       type="button"
-                      className="inline-flex h-8 items-center justify-center gap-1.5 rounded-full bg-dls-accent px-3.5 text-xs font-semibold text-[var(--dls-accent-fg)] transition-all hover:bg-[var(--dls-accent-hover)] disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="inline-flex h-8 items-center justify-center gap-1.5 rounded-full bg-dls-accent px-3.5 text-xs font-medium text-[var(--dls-accent-fg)] transition-all hover:bg-[var(--dls-accent-hover)] disabled:opacity-60 disabled:cursor-not-allowed"
                       onClick={props.onApplyBaseUrl}
                       disabled={
                         props.authBusy || props.baseUrlBusy || props.sessionBusy
