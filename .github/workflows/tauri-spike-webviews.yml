@@ -16,6 +16,12 @@
 #
 # All three seen: exit 0. Timeout: exit 1, naming what never arrived.
 #
+# A second job answers the question that follows: is Tauri lighter? It runs
+# both shells on the same runner, through the same script, sampled at the same
+# point after launch. Only a comparison measured that way is worth anything —
+# the metric itself (RSS) double-counts shared pages, so neither number means
+# much alone.
+#
 # Manual and path-scoped on purpose — this builds Rust on three runners, and
 # nothing outside the spike can change its result.
 name: Tauri spike · webviews
@@ -108,6 +114,7 @@ jobs:
         env:
           RANTAI_SPIKE_SMOKE: "1"
           RANTAI_SPIKE_SMOKE_TIMEOUT_MS: "180000"
+          RANTAI_SPIKE_SETTLE_MS: "25000"
         run: |
           set -euo pipefail
           binary=src-tauri/target/release/rantai-tauri-spike
@@ -136,3 +143,148 @@ jobs:
           else
             echo '### ${{ matrix.webview }} — the spike never wrote a report' >> "${GITHUB_STEP_SUMMARY}"
           fi
+
+  # Tauri and Electron on the same runner, same script, same metric, sampled at
+  # the same point after launch. The metric (RSS) double-counts shared pages,
+  # which is why it is only ever used to compare two shells measured the same
+  # way — never quoted on its own.
+  compare:
+    name: memory · ${{ matrix.webview }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            webview: WebKitGTK (Linux)
+          - os: macos-14
+            webview: WKWebView (macOS)
+          - os: windows-latest
+            webview: WebView2 (Windows)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.4.0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop-tauri/src-tauri
+
+      - name: Install Linux webview and display
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libjavascriptcoregtk-4.1-dev \
+            libsoup-3.0-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            xvfb
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the interface
+        run: pnpm --filter @openwork/app build
+
+      - name: Build the spike
+        working-directory: apps/desktop-tauri/src-tauri
+        run: cargo build --release
+
+      - name: Measure Tauri
+        working-directory: apps/desktop-tauri
+        shell: bash
+        run: |
+          set -euo pipefail
+          binary=src-tauri/target/release/rantai-tauri-spike
+          if [ "${RUNNER_OS}" = "Windows" ]; then
+            binary="${binary}.exe"
+          fi
+
+          if [ "${RUNNER_OS}" = "Linux" ]; then
+            xvfb-run -a node measure.mjs --label tauri --after 90 --out tauri.json -- "${binary}"
+          else
+            node measure.mjs --label tauri --after 90 --out tauri.json -- "${binary}"
+          fi
+
+      # pnpm does not run electron's postinstall, so the binary is absent until
+      # something asks for it — and the download prints to stdout, which is how
+      # "Downloading Electron binary..." ended up being captured as a path.
+      - name: Fetch the Electron binary
+        working-directory: apps/desktop
+        shell: bash
+        run: node -e "require(require.resolve('electron/install.js'))"
+
+      # The binary directly, never `pnpm exec electron`: the wrapper adds two
+      # node processes that showed up as 144 MB of Electron that was not
+      # Electron. And path.txt rather than require('electron'), which has side
+      # effects on a runner where the binary is not there yet.
+      - name: Measure Electron
+        working-directory: apps/desktop-tauri
+        shell: bash
+        run: |
+          set -euo pipefail
+          electron=$(cd ../desktop && node -e "
+            const fs = require('fs'), path = require('path');
+            const dir = path.dirname(require.resolve('electron/package.json'));
+            const exe = fs.readFileSync(path.join(dir, 'path.txt'), 'utf8').trim();
+            process.stdout.write(path.join(dir, 'dist', exe));
+          ")
+          echo "electron binary: ${electron}"
+
+          if [ "${RUNNER_OS}" = "Linux" ]; then
+            xvfb-run -a node measure.mjs --label electron --after 90 --cwd ../desktop --out electron.json -- "${electron}" ./electron/main.mjs
+          else
+            node measure.mjs --label electron --after 90 --cwd ../desktop --out electron.json -- "${electron}" ./electron/main.mjs
+          fi
+
+      - name: Report
+        if: always()
+        working-directory: apps/desktop-tauri
+        shell: bash
+        run: |
+          echo '## memory · ${{ matrix.webview }}' >> "${GITHUB_STEP_SUMMARY}"
+          for shell_name in tauri electron; do
+            if [ -f "${shell_name}.json" ]; then
+              echo "### ${shell_name}" >> "${GITHUB_STEP_SUMMARY}"
+              echo '```json' >> "${GITHUB_STEP_SUMMARY}"
+              cat "${shell_name}.json" >> "${GITHUB_STEP_SUMMARY}"
+              echo '```' >> "${GITHUB_STEP_SUMMARY}"
+            else
+              echo "### ${shell_name} — no measurement written" >> "${GITHUB_STEP_SUMMARY}"
+            fi
+          done
+
+      - name: Upload measurements
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-${{ matrix.os }}
+          path: |
+            apps/desktop-tauri/tauri.json
+            apps/desktop-tauri/electron.json
+          if-no-files-found: warn

@@ -18,6 +18,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
+import { sampleProcessTree } from "./memory.mjs";
 import { createWorkspaceStore } from "../desktop/electron/workspace-store.mjs";
 import { resolveDesktopDistribution } from "../desktop/electron/desktop-distribution.mjs";
 
@@ -33,6 +34,11 @@ const SERVER_PORT = 8799;
 // WebKitGTK had ever been checked against.
 const SMOKE = process.env.RANTAI_SPIKE_SMOKE === "1";
 const SMOKE_TIMEOUT_MS = Number(process.env.RANTAI_SPIKE_SMOKE_TIMEOUT_MS ?? 120000);
+// The webview keeps allocating for a while after the interface first responds
+// — WebKitGTK was seen going from 417 MB to 615 MB inside a few seconds. A
+// single early sample is not a number worth comparing across platforms, so the
+// run settles first.
+const SMOKE_SETTLE_MS = Number(process.env.RANTAI_SPIKE_SETTLE_MS ?? 25000);
 const SERVER_TOKEN = randomUUID();
 const SERVER_HOST_TOKEN = randomUUID();
 const BRIDGE_TOKEN = randomUUID();
@@ -280,7 +286,10 @@ function recordSignal(name) {
   if (SIGNALS[name] === false) {
     SIGNALS[name] = true;
     console.error(`[smoke] ${name}: ok`);
-    if (Object.values(SIGNALS).every(Boolean)) finishSmoke(0, "all signals seen");
+    if (Object.values(SIGNALS).every(Boolean)) {
+      console.error(`[smoke] all signals seen; settling ${SMOKE_SETTLE_MS}ms before measuring`);
+      setTimeout(() => finishSmoke(0, "all signals seen"), SMOKE_SETTLE_MS);
+    }
   }
 }
 
@@ -294,6 +303,11 @@ function finishSmoke(code, reason) {
     platform: process.platform,
     signals: SIGNALS,
     unservedCommands: [...missing.keys()],
+    // Only meaningful once the interface is actually up, which is what a
+    // passing run means; a timed-out run measures a half-built window.
+    // Rooted at the parent, because that is the Tauri process: this host is
+    // its child and the webview is its sibling.
+    memory: code === 0 ? sampleProcessTree(process.ppid) : null,
   };
   console.error(`[smoke] ${code === 0 ? "PASS" : "FAIL"} ${JSON.stringify(report)}`);
   try {
