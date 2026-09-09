@@ -349,7 +349,7 @@ export function CloudWorkspaceBootTakeover(props: { decision: CloudWorkspaceMain
                   exit={reduceMotion ? undefined : { opacity: 0, y: -4 }}
                   transition={{ duration: 0.18, ease: "easeOut" }}
                 >
-                  <h2 className="text-[24px] font-semibold leading-tight tracking-[-0.03em] text-dls-text">
+                  <h2 className="font-heading text-[24px] font-semibold leading-tight tracking-[-0.03em] text-dls-text">
                     {copy.title}
                   </h2>
                   <p className="mt-2 text-[14px] leading-6 text-dls-secondary">

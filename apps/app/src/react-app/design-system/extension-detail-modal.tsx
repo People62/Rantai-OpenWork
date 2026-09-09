@@ -321,7 +321,7 @@ export function ExtensionDetailModal({
         {presentation === "page" ? (
           <>
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-lg font-semibold leading-none tracking-tight text-foreground">{name}</h2>
+              <h2 className="font-heading text-lg font-semibold leading-none tracking-tight text-foreground">{name}</h2>
               {taxonomyPills}
             </div>
             <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>

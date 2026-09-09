@@ -115,7 +115,7 @@ export function SessionEmptyHero(props: SessionEmptyHeroProps) {
   return (
     <div className="mx-auto w-full max-w-[640px] space-y-6 px-4 max-lg:px-4 sm:px-6">
       <div className="space-y-1.5 text-center">
-        <h2 className="text-[24px] font-semibold leading-[30px] tracking-[-0.02em] text-foreground">
+        <h2 className="font-heading text-[24px] font-semibold leading-[30px] tracking-[-0.02em] text-foreground">
           What do you need done?
         </h2>
         <p className="text-[13px] text-muted-foreground">Describe it in plain language</p>
