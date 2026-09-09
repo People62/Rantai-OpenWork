@@ -303,7 +303,7 @@ export function AutomationsPage(props: { providerCatalog?: AutomationProviderCat
             <ArrowLeft />
           </Button>
           <div>
-            <h2 className="text-xl font-semibold">Create Automation</h2>
+            <h2 className="font-heading text-xl font-semibold">Create Automation</h2>
             <p className="text-sm text-muted-foreground">It becomes active as soon as you create it.</p>
           </div>
         </div>
@@ -358,7 +358,7 @@ export function AutomationsPage(props: { providerCatalog?: AutomationProviderCat
       return (
         <div className="mx-auto max-w-3xl space-y-5 p-6">
           <div>
-            <h2 className="text-xl font-semibold">Edit Automation</h2>
+            <h2 className="font-heading text-xl font-semibold">Edit Automation</h2>
             <p className="text-sm text-muted-foreground">Saving creates an immutable revision for future runs.</p>
           </div>
           <AutomationEditor
@@ -401,7 +401,7 @@ export function AutomationsPage(props: { providerCatalog?: AutomationProviderCat
             </Button>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="truncate text-xl font-semibold">{task.name}</h2>
+                <h2 className="font-heading truncate text-xl font-semibold">{task.name}</h2>
                 <Badge variant={stateVariant(task.state)}>{stateLabel(task.state)}</Badge>
               </div>
               <p className="mt-1 text-sm text-muted-foreground">{formatAutomationSchedule(detail.revision.schedule)}</p>
@@ -655,7 +655,7 @@ export function AutomationsPage(props: { providerCatalog?: AutomationProviderCat
     <div className="mx-auto max-w-5xl space-y-5 p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold">Automations</h2>
+          <h2 className="font-heading text-xl font-semibold">Automations</h2>
           <p className="mt-1 text-sm text-muted-foreground">Scheduled durably in Den, with each Automation executed in its fixed Desktop or OpenWork Cloud location.</p>
         </div>
         <Button onClick={() => setSearchParams(new URLSearchParams({ create: "1" }))}><Plus />New Automation</Button>

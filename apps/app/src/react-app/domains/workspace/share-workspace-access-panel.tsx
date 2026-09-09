@@ -152,7 +152,7 @@ export function ShareWorkspaceAccessPanel(
         <div className={surfaceCardClass}>
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-[18px] font-semibold tracking-[-0.3px] text-dls-text">
+              <h3 className="font-heading text-[18px] font-semibold tracking-[-0.3px] text-dls-text">
                 Remote access
               </h3>
               <p className="mt-1 text-[14px] leading-relaxed text-dls-secondary">
