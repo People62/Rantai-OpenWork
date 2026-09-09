@@ -36,8 +36,10 @@ export const SIDEBAR_ROW_LANE_NESTED = "ps-6";
 /** Matches nav row icon column: `mx-2` gutter + `ps-2.5` like `SidebarMenuButton`. */
 export const SIDEBAR_SECTION_LANE = "mx-2 ps-2.5 pe-2";
 
+// The only font-light in the app, on 11px muted text — three things working
+// against legibility at once. Regular is what every other small label uses.
 export const SIDEBAR_SECTION_LABEL =
-  "text-[11px] font-light text-muted-foreground";
+  "text-[11px] text-muted-foreground";
 
 const GLYPH_SLOT = "flex size-4 shrink-0 items-center justify-center";
 
