@@ -164,7 +164,7 @@ function DenSignedOutPanel({
 
       {authError ? <SettingsNotice tone="error">{authError}</SettingsNotice> : null}
 
-      <SettingsInset className="text-sm text-gray-10">
+      <SettingsInset className="text-sm text-muted-foreground">
         {t("den.auto_reconnect_hint")}
       </SettingsInset>
     </SettingsSection>

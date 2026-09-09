@@ -58,7 +58,7 @@ export function TabsTrigger(props: TabsTriggerProps) {
     <button
       type="button"
       className={cn(
-        "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-[13px] font-medium transition-colors text-gray-10 hover:bg-dls-surface/50 hover:text-dls-text",
+        "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-[13px] font-medium transition-colors text-muted-foreground hover:bg-dls-surface/50 hover:text-dls-text",
         props.active &&
           "bg-dls-surface text-dls-text shadow-sm hover:bg-dls-surface hover:text-dls-text",
       )}

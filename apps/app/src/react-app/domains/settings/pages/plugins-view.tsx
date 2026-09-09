@@ -68,7 +68,7 @@ export function PluginsView(props: PluginsViewProps) {
             <div className="text-sm font-medium text-gray-12">
               {t("plugins.title")}
             </div>
-            <div className="text-xs text-gray-10">{t("plugins.desc")}</div>
+            <div className="text-xs text-muted-foreground">{t("plugins.desc")}</div>
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -102,7 +102,7 @@ export function PluginsView(props: PluginsViewProps) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-1 text-xs text-gray-10">
+        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
           <div>{t("plugins.config_label")}</div>
           <div className="text-gray-7 font-mono truncate">
             {extensions.pluginConfigPath() ??
@@ -110,7 +110,7 @@ export function PluginsView(props: PluginsViewProps) {
               t("plugins.not_loaded_yet")}
           </div>
           {props.accessHint ? (
-            <div className="text-gray-9">{props.accessHint}</div>
+            <div className="text-muted-foreground">{props.accessHint}</div>
           ) : null}
         </div>
 
@@ -138,7 +138,7 @@ export function PluginsView(props: PluginsViewProps) {
                       <div className="text-sm font-medium text-gray-12 font-mono">
                         {plugin.name}
                       </div>
-                      <div className="text-xs text-gray-10 mt-1">
+                      <div className="text-xs text-muted-foreground mt-1">
                         {plugin.description}
                       </div>
                       {plugin.packageName !== plugin.name ? (
@@ -197,7 +197,7 @@ export function PluginsView(props: PluginsViewProps) {
                           <div className="text-xs text-gray-11">
                             {idx + 1}. {step.title}
                           </div>
-                          <div className="text-xs text-gray-10">
+                          <div className="text-xs text-muted-foreground">
                             {step.description}
                           </div>
                           {step.command ? (
@@ -206,12 +206,12 @@ export function PluginsView(props: PluginsViewProps) {
                             </div>
                           ) : null}
                           {step.note ? (
-                            <div className="text-xs text-gray-10">
+                            <div className="text-xs text-muted-foreground">
                               {step.note}
                             </div>
                           ) : null}
                           {step.url ? (
-                            <div className="text-xs text-gray-10">
+                            <div className="text-xs text-muted-foreground">
                               Open:{" "}
                               <span className="font-mono text-gray-11">
                                 {step.url}
@@ -219,7 +219,7 @@ export function PluginsView(props: PluginsViewProps) {
                             </div>
                           ) : null}
                           {step.path ? (
-                            <div className="text-xs text-gray-10">
+                            <div className="text-xs text-muted-foreground">
                               Path:{" "}
                               <span className="font-mono text-gray-11">
                                 {step.path}
@@ -237,7 +237,7 @@ export function PluginsView(props: PluginsViewProps) {
         </div>
 
         {extensions.pluginList().length === 0 ? (
-          <div className="rounded-xl border border-gray-6/60 bg-gray-1/40 p-4 text-sm text-gray-10">
+          <div className="rounded-xl border border-gray-6/60 bg-gray-1/40 p-4 text-sm text-muted-foreground">
             {t("plugins.empty")}
           </div>
         ) : (
@@ -249,11 +249,11 @@ export function PluginsView(props: PluginsViewProps) {
               >
                 <div>
                   <div className="text-sm text-gray-12 font-mono flex items-center gap-2">
-                    <Cpu size={14} className="text-gray-10" />
+                    <Cpu size={14} className="text-muted-foreground" />
                     {plugin.name}
                   </div>
                   {!plugin.removable ? (
-                    <div className="mt-1 text-xs text-gray-10">
+                    <div className="mt-1 text-xs text-muted-foreground">
                       {plugin.source === "dir.global"
                         ? "Discovered from a global plugin folder."
                         : "Discovered from the workspace plugin folder."}
@@ -261,7 +261,7 @@ export function PluginsView(props: PluginsViewProps) {
                   ) : null}
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="text-[10px] uppercase tracking-wide text-gray-10">
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
                     {plugin.removable ? t("plugins.enabled") : t("settings.cap_read_only")}
                   </div>
                   {plugin.removable ? (
@@ -306,7 +306,7 @@ export function PluginsView(props: PluginsViewProps) {
             </Button>
           </div>
           {extensions.pluginStatus() ? (
-            <div className="text-xs text-gray-10">
+            <div className="text-xs text-muted-foreground">
               {extensions.pluginStatus()}
             </div>
           ) : null}

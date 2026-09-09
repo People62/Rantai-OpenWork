@@ -158,7 +158,7 @@ export function QuestionPanel(props: QuestionPanelProps) {
               <div className="text-sm font-medium leading-5 text-gray-12">
                 {currentQuestion.header || t("common.question")}
               </div>
-              <div className="text-[11px] font-medium leading-4 text-gray-9">
+              <div className="text-[11px] font-medium leading-4 text-muted-foreground">
                 {t("question_modal.question_counter", undefined, {
                   current: state.currentIndex + 1,
                   total: props.questions.length,

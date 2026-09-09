@@ -97,7 +97,7 @@ function QueuedDraftContent(props: { draft: ComposerDraft }) {
 
   if (nodes.length === 0) {
     return (
-      <span className="text-gray-10">
+      <span className="text-muted-foreground">
         {t("composer.queued_attachments_only", { count: props.draft.attachments.length })}
       </span>
     );
@@ -193,7 +193,7 @@ function QueuedDraftRow(props: {
       className="flex items-start gap-2 rounded-xl border border-gray-6 bg-gray-1 px-2 py-2.5"
     >
       <span
-        className="mt-0.5 flex size-5 shrink-0 cursor-grab items-center justify-center text-gray-9 active:cursor-grabbing"
+        className="mt-0.5 flex size-5 shrink-0 cursor-grab items-center justify-center text-muted-foreground active:cursor-grabbing"
         title={t("composer.queued_reorder")}
         aria-hidden="true"
       >
@@ -242,7 +242,7 @@ function QueuedDraftRow(props: {
           type="button"
           onClick={() => props.onSendNow(props.item.id)}
           disabled={props.sending}
-          className="flex size-5 items-center justify-center rounded-md text-gray-10 transition-colors hover:bg-gray-3 hover:text-gray-12 disabled:pointer-events-none disabled:opacity-40"
+          className="flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-gray-3 hover:text-gray-12 disabled:pointer-events-none disabled:opacity-40"
           title={t("composer.queued_send_now")}
           aria-label={t("composer.queued_send_now")}
         >
@@ -252,7 +252,7 @@ function QueuedDraftRow(props: {
           type="button"
           onClick={() => props.onRemove(props.item.id)}
           disabled={props.sending}
-          className="flex size-5 items-center justify-center rounded-md text-gray-10 transition-colors hover:bg-gray-3 hover:text-gray-12 disabled:pointer-events-none disabled:opacity-40"
+          className="flex size-5 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-gray-3 hover:text-gray-12 disabled:pointer-events-none disabled:opacity-40"
           title={t("common.remove")}
           aria-label={t("common.remove")}
         >

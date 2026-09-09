@@ -708,7 +708,7 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
               {errorMessage}
             </div>
           ) : props.loading ? (
-            <div className="rounded-xl border border-gray-6 bg-gray-1/60 px-4 py-3 text-sm text-gray-10 animate-pulse">
+            <div className="rounded-xl border border-gray-6 bg-gray-1/60 px-4 py-3 text-sm text-muted-foreground animate-pulse">
               Loading providers…
             </div>
           ) : null}
@@ -718,7 +718,7 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
               {resolvedView === "list" ? (
                 <div className="space-y-3" role="presentation" onKeyDown={handleListKeyDown}>
                   <div className="relative flex items-center mb-1">
-                    <Search size={16} className="absolute left-3 text-gray-9" />
+                    <Search size={16} className="absolute left-3 text-muted-foreground" />
                     <input
                       ref={searchInputRef}
                       type="text"
@@ -740,12 +740,12 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                     filteredEntries.map((entry, index) => (
                       <div key={entry.id}>
                         {index === 0 && entry.connected ? (
-                          <div className="px-1 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-10">
+                          <div className="px-1 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                             Connected
                           </div>
                         ) : null}
                         {index === connectedCount && !entry.connected ? (
-                          <div className="px-1 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-10">
+                          <div className="px-1 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                             {connectedCount ? "All providers" : "Providers"}
                           </div>
                         ) : null}
@@ -776,14 +776,14 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                                     Connected
                                   </div>
                                 ) : (
-                                  <div className="text-[12px] font-medium text-gray-9 group-hover:text-gray-12 transition-colors flex items-center gap-0.5 opacity-80 group-hover:opacity-100">
+                                  <div className="text-[12px] font-medium text-muted-foreground group-hover:text-gray-12 transition-colors flex items-center gap-0.5 opacity-80 group-hover:opacity-100">
                                     Connect
                                     <ChevronRight size={14} className="opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-200" />
                                   </div>
                                 )}
                               </div>
                             </div>
-                            <div className="text-[11px] text-gray-9 font-mono truncate mt-0.5 opacity-60 group-hover:opacity-80 transition-opacity">
+                            <div className="text-[11px] text-muted-foreground font-mono truncate mt-0.5 opacity-60 group-hover:opacity-80 transition-opacity">
                               {entry.id}
                             </div>
 
@@ -808,12 +808,12 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                       </div>
                     ))
                   ) : (
-                    <div className="text-sm text-gray-10 pt-2">
+                    <div className="text-sm text-muted-foreground pt-2">
                       {entries.length ? "No providers match your search." : "No providers available."}
                     </div>
                   )}
 
-                  <div className="text-[11px] text-gray-9">Arrow keys to navigate, Enter to select.</div>
+                  <div className="text-[11px] text-muted-foreground">Arrow keys to navigate, Enter to select.</div>
                 </div>
               ) : null}
 
@@ -822,7 +822,7 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <div className="text-sm font-medium text-gray-12">{selectedEntry.name}</div>
-                      <div className="text-xs text-gray-10 mt-1">Choose how you'd like to connect.</div>
+                      <div className="text-xs text-muted-foreground mt-1">Choose how you'd like to connect.</div>
                     </div>
                     <Button variant="outline" onClick={handleBack} disabled={actionDisabled}>
                       Back
@@ -842,7 +842,7 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                         disabled={actionDisabled}
                       >
                         <div className="text-sm font-medium text-gray-12">{methodLabel(method)}</div>
-                        <div className="mt-1 text-xs text-gray-10">{methodDescription(selectedEntry, method)}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">{methodDescription(selectedEntry, method)}</div>
                       </button>
                     ))}
                   </div>
@@ -857,10 +857,10 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                     </div>
                     <div className="min-w-0">
                       <div className="text-sm font-medium text-gray-12 truncate">{selectedEntry.name}</div>
-                      <div className="text-[11px] text-gray-9 font-mono truncate">{selectedEntry.id}</div>
+                      <div className="text-[11px] text-muted-foreground font-mono truncate">{selectedEntry.id}</div>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-10">
+                  <div className="text-xs text-muted-foreground">
                     {isOpencodeZenProvider(selectedEntry.id)
                       ? "Sign in to OpenCode Zen with an API key from opencode.ai/auth."
                       : "Paste your API key to connect."}
@@ -894,7 +894,7 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                     disabled={actionDisabled}
                   />
                   {selectedEntry.env.length > 0 ? (
-                    <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-gray-9">
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
                       Env vars:
                       {selectedEntry.env.map((envVar) => (
                         <span
@@ -914,7 +914,7 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <div className="text-sm font-medium text-gray-12">OpenWork Models</div>
-                      <div className="text-xs text-gray-10 mt-1">
+                      <div className="text-xs text-muted-foreground mt-1">
                         Frontier intelligence, hand picked for your team&apos;s most ambitious work.
                       </div>
                     </div>
@@ -935,17 +935,17 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <div className="text-sm font-medium text-gray-12">{selectedEntry.name}</div>
-                      <div className="text-xs text-gray-10 mt-1">Finish OAuth by pasting the authorization code.</div>
+                      <div className="text-xs text-muted-foreground mt-1">Finish OAuth by pasting the authorization code.</div>
                     </div>
                     <Button variant="outline" onClick={handleBack} disabled={actionDisabled}>
                       Back
                     </Button>
                   </div>
-                  <div className="text-xs text-gray-9">
+                  <div className="text-xs text-muted-foreground">
                     Complete sign-in in your browser, then paste the code here.
                   </div>
                   {oauthInstructions ? (
-                    <div className="rounded-lg border border-gray-6/60 bg-gray-1/60 px-3 py-2 text-[11px] text-gray-9 font-mono break-all">
+                    <div className="rounded-lg border border-gray-6/60 bg-gray-1/60 px-3 py-2 text-[11px] text-muted-foreground font-mono break-all">
                       {oauthInstructions}
                     </div>
                   ) : null}
@@ -992,21 +992,21 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <div className="text-sm font-medium text-gray-12">{selectedEntry.name}</div>
-                      <div className="text-xs text-gray-10 mt-1">Waiting for browser confirmation.</div>
+                      <div className="text-xs text-muted-foreground mt-1">Waiting for browser confirmation.</div>
                     </div>
                     <Button variant="outline" onClick={handleBack} disabled={actionDisabled}>
                       Back
                     </Button>
                   </div>
                   {isOpenAiHeadlessSession ? (
-                    <div className="space-y-2 text-xs text-gray-9">
+                    <div className="space-y-2 text-xs text-muted-foreground">
                       <div>You'll need to sign in to your OpenAI account and provide the code below.</div>
                       <div>The first time you do this you'll need to enable Device auth in your account settings.</div>
                       <div>ChatGPT &gt; Account Settings &gt; Security &gt; Enable device code authorization</div>
                       <div>When you're ready, copy the code below, and click &quot;Open Browser&quot;.</div>
                     </div>
                   ) : (
-                    <div className="text-xs text-gray-9">
+                    <div className="text-xs text-muted-foreground">
                       Sign in in the browser tab we just opened. We will complete the connection automatically.
                     </div>
                   )}
@@ -1022,11 +1022,11 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                     </div>
                   ) : null}
                   {isOpenAiHeadlessSession && !oauthBrowserOpened ? (
-                    <div className="flex items-center gap-2 text-xs text-gray-9">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>Authorization checks will start after you click Open Browser.</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 text-xs text-gray-9">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Loader2 size={14} className={props.submitting || pollingBusy || oauthAutoBusy ? "animate-spin" : ""} />
                       <span>Checking connection status automatically…</span>
                     </div>
@@ -1044,7 +1044,7 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
                           : "Open Browser"
                         : "Open browser again"}
                     </Button>
-                    <div className="text-[11px] text-gray-9 text-right">
+                    <div className="text-[11px] text-muted-foreground text-right">
                       This window will close once the provider is connected.
                     </div>
                   </div>
@@ -1055,7 +1055,7 @@ export default function ProviderAuthModal(props: ProviderAuthModalProps) {
         </div>
 
         <DialogFooter className="shrink-0 flex-col gap-3">
-          <div className="min-h-[16px] text-xs text-gray-10">
+          <div className="min-h-[16px] text-xs text-muted-foreground">
             {props.submitting ? submittingLabel() : null}
           </div>
           {/* One action bar per view: Back returns to the list, Close dismisses,

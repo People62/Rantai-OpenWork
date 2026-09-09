@@ -92,7 +92,7 @@ function EndpointWarningBadge(props: { children: ReactNode }) {
 function EndpointRow(props: { label: string; value: string; children?: ReactNode }) {
   return (
     <div className="grid gap-1 rounded-xl border border-gray-6/50 bg-gray-1/60 p-3 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-3">
-      <div className="text-[11px] font-medium uppercase tracking-wide text-gray-9">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
         {props.label}
       </div>
       <div className="min-w-0 space-y-2">
@@ -138,7 +138,7 @@ function ServerEndpointsCard(props: { cloudMcpUrl: string | null }) {
     <SettingsInset className="space-y-3 bg-gray-1/40">
       <div className="space-y-1">
         <div className="text-sm font-medium text-gray-12">{t("settings.server_endpoints_title")}</div>
-        <div className="text-xs text-gray-9">{t("settings.server_endpoints_desc")}</div>
+        <div className="text-xs text-muted-foreground">{t("settings.server_endpoints_desc")}</div>
       </div>
 
       <div className="space-y-2">
@@ -227,7 +227,7 @@ export function AdvancedOrganizationServerSection(props: AdvancedOrganizationSer
         </LayoutSectionItemFootnote>
         {isDesktopRuntime() ? <ServerEndpointsCard cloudMcpUrl={props.cloudMcpUrl} /> : null}
         {platform.capabilities.desktopBootstrap ? (
-          <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-9">
+          <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
             <Button
               variant={clearConfirming ? "destructive" : "outline"}
               size="sm"
@@ -269,12 +269,12 @@ function RuntimeStatusCard(props: RuntimeStatusCardProps) {
         </div>
         <div>
           <div className="text-sm font-medium text-gray-12">{props.title}</div>
-          <div className="text-xs text-gray-9">{props.description}</div>
+          <div className="text-xs text-muted-foreground">{props.description}</div>
         </div>
       </div>
       <SettingsStatusBadge className="inline-flex min-h-0 justify-start px-0 py-0" tone={props.tone} label={props.statusLabel} />
       {props.detailLines?.length ? (
-        <div className="space-y-1 border-t border-gray-6/50 pt-2 text-[11px] text-gray-9">
+        <div className="space-y-1 border-t border-gray-6/50 pt-2 text-[11px] text-muted-foreground">
           {props.detailLines.map((line) => (
             <div key={line} className="truncate" title={line}>
               {line}
@@ -575,10 +575,10 @@ function RuntimeConfigSourceBlock(props: {
     <div className="space-y-2 rounded-xl border border-gray-6 bg-gray-1/70 p-3">
       <div>
         <div className="font-medium text-gray-12">{props.title}</div>
-        <div className="text-[11px] text-gray-9">{props.description}</div>
+        <div className="text-[11px] text-muted-foreground">{props.description}</div>
         {props.path ? <div className="mt-1 break-all font-mono text-[11px] text-gray-8">{props.path}</div> : null}
-        {props.exists !== undefined ? <div className="text-[11px] text-gray-9">{props.exists ? "Found" : "Not found"}</div> : null}
-        <div className="text-[11px] text-gray-9">Keys: {formatKeys(props.keys)}</div>
+        {props.exists !== undefined ? <div className="text-[11px] text-muted-foreground">{props.exists ? "Found" : "Not found"}</div> : null}
+        <div className="text-[11px] text-muted-foreground">Keys: {formatKeys(props.keys)}</div>
       </div>
       <RuntimeConfigSummary config={safeConfig} />
       <details className="rounded-lg bg-gray-3 p-2">
@@ -637,10 +637,10 @@ export function AdvancedRuntimeMigrationSection(props: AdvancedRuntimeMigrationS
         {props.migrationStatus ? <SettingsNotice>{props.migrationStatus}</SettingsNotice> : null}
         {props.configStatusError ? <SettingsNotice>{props.configStatusError}</SettingsNotice> : null}
         {props.configStatus ? (
-          <div className="space-y-3 rounded-xl border border-gray-6 bg-gray-1/60 p-3 text-xs text-gray-10">
+          <div className="space-y-3 rounded-xl border border-gray-6 bg-gray-1/60 p-3 text-xs text-muted-foreground">
             <div className="space-y-2 rounded-xl border border-blue-6/50 bg-blue-2/40 p-3">
               <div className="font-medium text-gray-12">Desired Rantai runtime config</div>
-              <div className="text-[11px] text-gray-9">
+              <div className="text-[11px] text-muted-foreground">
                 This is the Rantai-built config object requested for the runtime database and injected safely by the server. Sensitive headers are redacted here.
               </div>
               <RuntimeConfigSummary config={effectiveRuntimeConfig ?? {}} />
@@ -655,7 +655,7 @@ export function AdvancedRuntimeMigrationSection(props: AdvancedRuntimeMigrationS
               <div className="space-y-3">
                 <div>
                   <div className="font-medium text-gray-12">OpenCode source breakdown</div>
-                  <div className="text-[11px] text-gray-9">
+                  <div className="text-[11px] text-muted-foreground">
                     OpenCode also reads its own project and global config files. Rantai injects the runtime config separately; for Rantai-managed keys, the injected config is the source to inspect.
                   </div>
                 </div>

@@ -153,7 +153,7 @@ export function NotificationBell({ variant = "icon" }: { variant?: "icon" | "sid
             <Button
               variant="ghost"
               size="icon-sm"
-              className="rounded-xl text-gray-10 transition-colors hover:bg-muted hover:text-foreground"
+              className="rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               title={t("notifications.title")}
               aria-label={label}
             >
