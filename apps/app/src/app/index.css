@@ -610,7 +610,11 @@ select:disabled {
   --secondary: var(--tinted-3);
   --secondary-foreground: var(--slate-12);
   --muted: var(--tinted-3);
-  --muted-foreground: var(--slate-10);
+  /* Step 11 is the scale's low-contrast text step, and light mode already uses
+     it. Dark mode was on step 10, which Radix intends for hovered solid
+     backgrounds, not for reading: it measures 3.8:1 on the app background and
+     put a dozen labels under AA. */
+  --muted-foreground: var(--slate-11);
   --accent: var(--tinted-3);
   --accent-foreground: var(--slate-12);
   --destructive: var(--red-9);
