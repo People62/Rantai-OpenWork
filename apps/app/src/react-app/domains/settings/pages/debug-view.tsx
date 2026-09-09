@@ -280,7 +280,7 @@ function ExecutionDetails(props: { execution: OpencodeExecutionSnapshot }) {
           <div className="max-h-64 overflow-auto rounded-lg border border-dls-border bg-dls-sidebar/30">
             {props.execution.env.length > 0 ? props.execution.env.map((entry) => (
               <div key={entry.name} className="grid gap-2 border-b border-dls-border/50 p-2 last:border-b-0 md:grid-cols-[180px_minmax(0,1fr)]">
-                <div className="font-mono text-[11px] font-semibold text-dls-text">{entry.name}</div>
+                <div className="font-mono text-[11px] font-medium text-dls-text">{entry.name}</div>
                 <pre className="whitespace-pre-wrap break-words font-mono text-[11px] text-dls-secondary">{entry.value}</pre>
               </div>
             )) : (

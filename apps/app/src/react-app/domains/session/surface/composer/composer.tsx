@@ -783,7 +783,7 @@ export function ReactSessionComposer(props: ComposerProps) {
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0 flex-1 truncate text-xs font-semibold text-gray-11">{server.name}</div>
+                  <div className="min-w-0 flex-1 truncate text-xs font-medium text-gray-11">{server.name}</div>
                   {signIn ? (
                     <button
                       type="button"
@@ -1173,7 +1173,7 @@ export function ReactSessionComposer(props: ComposerProps) {
                     <Terminal size={14} className="mt-0.5 shrink-0 text-gray-9" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-3">
-                        <div className="truncate text-xs font-semibold">/{command.name}</div>
+                        <div className="truncate text-xs font-medium">/{command.name}</div>
                         {command.source && command.source !== "command" ? (
                           <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${command.source === "skill" ? "bg-violet-3/40 text-violet-11" : "bg-cyan-3/40 text-cyan-11"}`}>
                             {command.source === "skill" ? t("composer.skill_source") : t("composer.mcps_label")}
@@ -1229,7 +1229,7 @@ export function ReactSessionComposer(props: ComposerProps) {
                     <FileText size={14} className="mt-0.5 shrink-0 text-gray-9" />
                   )}
                   <div className="min-w-0">
-                    <div className="truncate text-xs font-semibold">@{item.label}</div>
+                    <div className="truncate text-xs font-medium">@{item.label}</div>
                     <div className="truncate text-xs text-gray-10">
                       {item.kind === "agent"
                         ? t("composer.agent_label")
@@ -1481,7 +1481,7 @@ export function ReactSessionComposer(props: ComposerProps) {
                                 onClick={() => applyAgentSelection(null)}
                               >
                                 <Zap size={14} className="mt-0.5 shrink-0 text-gray-9" />
-                                <div className="min-w-0 flex-1 truncate text-xs font-semibold">{t("composer.default_agent")}</div>
+                                <div className="min-w-0 flex-1 truncate text-xs font-medium">{t("composer.default_agent")}</div>
                                 {props.selectedAgent === null ? <Check size={14} className="mt-0.5 shrink-0 text-gray-10" /> : null}
                               </button>
                               {nonDefaultAgents.map((agent) => {
@@ -1495,7 +1495,7 @@ export function ReactSessionComposer(props: ComposerProps) {
                                   >
                                     <Zap size={14} className="mt-0.5 shrink-0 text-gray-9" />
                                     <div className="min-w-0 flex-1">
-                                      <div className="truncate text-xs font-semibold">{agent.name.charAt(0).toUpperCase() + agent.name.slice(1)}</div>
+                                      <div className="truncate text-xs font-medium">{agent.name.charAt(0).toUpperCase() + agent.name.slice(1)}</div>
                                       {agent.description ? <div className="truncate text-xs text-gray-10">{agent.description}</div> : null}
                                     </div>
                                     {active ? <Check size={14} className="mt-0.5 shrink-0 text-gray-10" /> : null}
@@ -1516,7 +1516,7 @@ export function ReactSessionComposer(props: ComposerProps) {
                                   >
                                     <Terminal size={14} className="mt-0.5 shrink-0 text-gray-9" />
                                     <div className="min-w-0">
-                                      <div className="truncate text-xs font-semibold text-gray-11">/{command.name}</div>
+                                      <div className="truncate text-xs font-medium text-gray-11">/{command.name}</div>
                                       {command.description ? <div className="truncate text-xs text-gray-10">{command.description}</div> : null}
                                     </div>
                                   </button>
@@ -1541,7 +1541,7 @@ export function ReactSessionComposer(props: ComposerProps) {
                                     <Zap size={14} className="mt-0.5 shrink-0 text-gray-9" />
                                     <div className="min-w-0 flex-1">
                                       <div className="flex items-center justify-between gap-3">
-                                        <div className="min-w-0 flex-1 truncate text-xs font-semibold text-gray-11">
+                                        <div className="min-w-0 flex-1 truncate text-xs font-medium text-gray-11">
                                           /{skillMenuSlashCommandName(skill)}
                                         </div>
                                         {isLocalCapability(skill.origin) ? (
@@ -1578,7 +1578,7 @@ export function ReactSessionComposer(props: ComposerProps) {
                                     onClick={() => setToolMenuSection(`plugin:${plugin.pluginId}`)}
                                   >
                                     <div className="min-w-0 flex-1">
-                                      <div className="truncate text-xs font-semibold text-gray-11">{plugin.name}</div>
+                                      <div className="truncate text-xs font-medium text-gray-11">{plugin.name}</div>
                                       {plugin.description ? (
                                         <div className="truncate text-xs text-gray-10">{plugin.description}</div>
                                       ) : null}
@@ -1606,7 +1606,7 @@ export function ReactSessionComposer(props: ComposerProps) {
                                     <FileText size={14} className="mt-0.5 shrink-0 text-gray-9" />
                                     <div className="min-w-0 flex-1">
                                       <div className="flex items-center justify-between gap-3">
-                                        <div className="truncate text-xs font-semibold text-gray-11">{file.title}</div>
+                                        <div className="truncate text-xs font-medium text-gray-11">{file.title}</div>
                                         <span className="shrink-0 rounded-full bg-gray-3 px-2 py-0.5 text-[10px] font-medium text-gray-11">
                                           {formatPluginObjectType(file.objectType)}
                                         </span>

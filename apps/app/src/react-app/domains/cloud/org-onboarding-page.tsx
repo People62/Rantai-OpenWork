@@ -258,7 +258,7 @@ function PreparedWorkspacePage({ prepared }: { prepared: PreparedBootstrapSummar
           <div
             data-openwork-prepared="true"
             data-openwork-provisional="true"
-            className="mx-auto flex w-fit items-center gap-2 rounded-full border border-green-6/30 bg-green-2/30 px-3 py-1 text-xs font-semibold text-green-11"
+            className="mx-auto flex w-fit items-center gap-2 rounded-full border border-green-6/30 bg-green-2/30 px-3 py-1 text-xs font-medium text-green-11"
           >
             <CheckCircle2 className="size-3.5" />
             Setup complete — Rantai is ready
@@ -800,7 +800,7 @@ export function ResourceSelectionPage({ autoContinue = false }: { autoContinue?:
               Restart Rantai once to finish applying {orgName || "your workspace"}&apos;s name and app icon everywhere.
             </PageDescription>
             {brandingRestart.updateReady ? (
-              <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-green-6/30 bg-green-2/30 px-3 py-1 text-xs font-semibold text-green-11">
+              <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-green-6/30 bg-green-2/30 px-3 py-1 text-xs font-medium text-green-11">
                 <CheckCircle2 className="size-3.5" />
                 Application update downloaded
               </div>
@@ -867,7 +867,7 @@ export function ResourceSelectionPage({ autoContinue = false }: { autoContinue?:
           {prepared ? (
             <div
               data-openwork-prepared="true"
-              className="mx-auto flex w-fit items-center gap-2 rounded-full border border-green-6/30 bg-green-2/30 px-3 py-1 text-xs font-semibold text-green-11"
+              className="mx-auto flex w-fit items-center gap-2 rounded-full border border-green-6/30 bg-green-2/30 px-3 py-1 text-xs font-medium text-green-11"
             >
               <CheckCircle2 className="size-3.5" />
               Setup complete — Rantai prepared this workspace
