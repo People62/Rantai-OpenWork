@@ -79,3 +79,7 @@ evals/results/
 # Tauri spike: Rust build output and generated schemas
 apps/desktop-tauri/src-tauri/target/
 apps/desktop-tauri/src-tauri/gen/
+
+# Measurement output from apps/desktop-tauri/measure.mjs
+apps/desktop-tauri/tauri.json
+apps/desktop-tauri/electron.json
