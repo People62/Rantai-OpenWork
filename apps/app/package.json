@@ -20,6 +20,7 @@
     "test:permissions": "node scripts/permissions.mjs",
     "test:voice-cdp": "node scripts/voice-cdp.mjs",
     "screenshot": "node scripts/screenshot.mjs",
+    "contrast-audit": "node scripts/contrast-audit.mjs",
     "test:remote-diagnostics": "bun test scripts/remote-workspace-diagnostics.test.ts",
     "test:open-target": "bun test scripts/open-target.test.ts",
     "test:desktop-cloud-sync": "bun test scripts/desktop-cloud-sync.test.ts",
