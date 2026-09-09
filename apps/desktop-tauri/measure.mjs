@@ -61,6 +61,17 @@ const child = spawn(command[0], command.slice(1), {
 let exitedEarly = null;
 child.on("exit", (code, signal) => { exitedEarly = { code, signal }; });
 
+// Without this, a bad command surfaces as "Error: spawn <whatever the shell
+// captured>" with no hint that the path itself is wrong — which is exactly how
+// a stray "Downloading Electron binary..." on stdout read as a file path.
+child.on("error", (error) => {
+  console.error(`[measure] cannot start ${command[0]}: ${error.message}`);
+  if (error.code === "ENOENT") {
+    console.error("[measure] that is the command, not its output — check how the path was resolved");
+  }
+  process.exit(1);
+});
+
 await new Promise((resolve) => setTimeout(resolve, options.afterSeconds * 1000));
 
 const report = {

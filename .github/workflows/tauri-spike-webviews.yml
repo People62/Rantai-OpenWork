@@ -231,15 +231,29 @@ jobs:
             node measure.mjs --label tauri --after 90 --out tauri.json -- "${binary}"
           fi
 
+      # pnpm does not run electron's postinstall, so the binary is absent until
+      # something asks for it — and the download prints to stdout, which is how
+      # "Downloading Electron binary..." ended up being captured as a path.
+      - name: Fetch the Electron binary
+        working-directory: apps/desktop
+        shell: bash
+        run: node -e "require(require.resolve('electron/install.js'))"
+
       # The binary directly, never `pnpm exec electron`: the wrapper adds two
       # node processes that showed up as 144 MB of Electron that was not
-      # Electron.
+      # Electron. And path.txt rather than require('electron'), which has side
+      # effects on a runner where the binary is not there yet.
       - name: Measure Electron
         working-directory: apps/desktop-tauri
         shell: bash
         run: |
           set -euo pipefail
-          electron=$(cd ../desktop && node -p "require('electron')")
+          electron=$(cd ../desktop && node -e "
+            const fs = require('fs'), path = require('path');
+            const dir = path.dirname(require.resolve('electron/package.json'));
+            const exe = fs.readFileSync(path.join(dir, 'path.txt'), 'utf8').trim();
+            process.stdout.write(path.join(dir, 'dist', exe));
+          ")
           echo "electron binary: ${electron}"
 
           if [ "${RUNNER_OS}" = "Linux" ]; then
@@ -270,5 +284,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: memory-${{ matrix.os }}
-          path: apps/desktop-tauri/*.json
+          path: |
+            apps/desktop-tauri/tauri.json
+            apps/desktop-tauri/electron.json
           if-no-files-found: warn
