@@ -1,6 +1,6 @@
 extends: ./electron-builder.base.yml
 appId: com.differentai.openwork
-productName: OpenWork
+productName: Rantai
 protocols:
   - name: OpenWork
     schemes:
