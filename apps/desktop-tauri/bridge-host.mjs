@@ -14,7 +14,8 @@ import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 import os from "node:os";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -28,6 +29,9 @@ import {
 import { persistConnectLinkBranding } from "../desktop/electron/connect-link-branding.mjs";
 import { resolveConnectLinkPublicKeys } from "../desktop/electron/connect-link-keys.mjs";
 import { createWorkspaceStore } from "../desktop/electron/workspace-store.mjs";
+// The server already owns skill CRUD, and bun imports TypeScript directly — so
+// this reuses a proper module instead of extracting one out of main.mjs.
+import { deleteSkill, listSkills, upsertSkill } from "../server/src/skills.ts";
 import { resolveDesktopDistribution } from "../desktop/electron/desktop-distribution.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -76,6 +80,24 @@ const distribution = resolveDesktopDistribution({
   packageFlavor: undefined,
   environmentFlavor: process.env.OPENWORK_DESKTOP_DISTRIBUTION,
 });
+
+/// main.mjs refuses anything that is not kebab-case before touching the disk,
+/// because the name becomes a directory. Same rule here.
+function skillNameGuard(raw) {
+  const trimmed = String(raw ?? "").trim();
+  if (!trimmed || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(trimmed)) {
+    throw new Error("skill name must be kebab-case");
+  }
+  return trimmed;
+}
+
+async function ensureSkillsDir(projectDir) {
+  const root = String(projectDir ?? "").trim();
+  if (!root) throw new Error("projectDir is required");
+  const dir = path.join(root, ".opencode", "skills");
+  await mkdir(dir, { recursive: true });
+  return dir;
+}
 
 // --- the managed openwork-server -------------------------------------------
 
@@ -220,6 +242,62 @@ const commands = {
   setDesktopBootstrapConfig: (input) => workspaceStore.setDesktopBootstrapConfig(input ?? {}),
   clearDesktopBootstrapConfig: () => workspaceStore.clearDesktopBootstrapConfig(),
   debugDesktopBootstrapConfig: () => workspaceStore.debugDesktopBootstrapConfig(),
+
+  // --- skills ---------------------------------------------------------------
+
+  listLocalSkills: (projectDir) => listSkills(String(projectDir ?? "").trim(), true),
+
+  readLocalSkill: async (projectDir, name) => {
+    const root = String(projectDir ?? "").trim();
+    const skills = await listSkills(root, true);
+    const found = skills.find((s) => s.name === name);
+    if (!found) throw new Error(`Skill not found: ${name}`);
+    // listSkills already returns the SKILL.md path, not the directory holding
+    // it. Joining "SKILL.md" onto it again is how this first went wrong.
+    return { path: found.path, content: await readFile(found.path, "utf8") };
+  },
+
+  writeLocalSkill: async (projectDir, name, content) => {
+    const result = await upsertSkill(String(projectDir ?? "").trim(), { name, content });
+    return { ok: true, status: 0, stdout: `Saved skill ${name} to ${result.path}`, stderr: "" };
+  },
+
+  uninstallSkill: async (projectDir, name) => {
+    const result = await deleteSkill(String(projectDir ?? "").trim(), String(name ?? "").trim());
+    return { ok: true, status: 0, stdout: `Removed skill ${name} from ${result.path}`, stderr: "" };
+  },
+
+  // A skill is a folder, and importing one is a recursive copy — the same eight
+  // lines main.mjs runs. Worth keeping identical: this is how a knowledge base
+  // gets in.
+  importSkill: async (projectDir, sourceDir, options = {}) => {
+    const root = skillNameGuard(path.basename(String(sourceDir ?? "").trim()));
+    const destination = path.join(await ensureSkillsDir(projectDir), root);
+    if (existsSync(destination)) {
+      if (options.overwrite !== true) {
+        return { ok: false, status: 1, stdout: "", stderr: `Skill already exists at ${destination}` };
+      }
+      await rm(destination, { recursive: true, force: true });
+    }
+    await cp(String(sourceDir).trim(), destination, { recursive: true });
+    return { ok: true, status: 0, stdout: `Imported skill to ${destination}`, stderr: "" };
+  },
+
+  installSkillTemplate: async (projectDir, name, content, options = {}) => {
+    const safe = skillNameGuard(name);
+    const destination = path.join(await ensureSkillsDir(projectDir), safe);
+    if (existsSync(destination) && options.overwrite !== true) {
+      return { ok: false, status: 1, stdout: "", stderr: `Skill already exists at ${destination}` };
+    }
+    await mkdir(destination, { recursive: true });
+    await writeFile(path.join(destination, "SKILL.md"), String(content ?? ""), "utf8");
+    return { ok: true, status: 0, stdout: `Installed skill to ${destination}`, stderr: "" };
+  },
+
+  // --- workspace config -------------------------------------------------------
+
+  workspaceExportConfig: (input) => workspaceStore.exportConfig(input ?? {}),
+  workspaceImportConfig: (input) => workspaceStore.importConfig(input ?? {}),
 
   connectLinkVerify: async (rawUrl) => {
     const verified = await resolveConnectLink(String(rawUrl ?? ""), "preview");
