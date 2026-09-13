@@ -19,6 +19,14 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { sampleProcessTree } from "./memory.mjs";
+import {
+  createConnectLinkReplayGuard,
+  extractConnectExchange,
+  resolveConnectExchangeUrl,
+  verifyConnectLinkUrl,
+} from "../desktop/electron/connect-link.mjs";
+import { persistConnectLinkBranding } from "../desktop/electron/connect-link-branding.mjs";
+import { resolveConnectLinkPublicKeys } from "../desktop/electron/connect-link-keys.mjs";
 import { createWorkspaceStore } from "../desktop/electron/workspace-store.mjs";
 import { resolveDesktopDistribution } from "../desktop/electron/desktop-distribution.mjs";
 
@@ -149,6 +157,39 @@ function openworkServerInfo() {
   };
 }
 
+// --- deep links ---------------------------------------------------------------
+
+// All 497 lines of connect-link.mjs are plain Node — signature checks, claim
+// extraction, the replay ledger. None of it is rewritten here; Rust only has to
+// register the scheme and hand the URL over.
+
+const replayGuard = createConnectLinkReplayGuard({
+  filePath: path.join(USER_DATA, "connect-link-seen.json"),
+});
+
+function verifyConnectLink(rawUrl) {
+  return verifyConnectLinkUrl(String(rawUrl ?? ""), {
+    publicKeys: resolveConnectLinkPublicKeys(),
+    allowInsecureLoopback: false,
+  });
+}
+
+// Electron passes its own net.fetch here, which rides Chromium's network stack
+// and so picks up the system proxy and certificate store. Node's fetch does
+// neither. It is enough for the spike and wrong for a release.
+async function resolveConnectLink(rawUrl, mode) {
+  if (extractConnectExchange(rawUrl)) {
+    return resolveConnectExchangeUrl(rawUrl, { mode, fetcher: fetch, allowInsecureLoopback: false });
+  }
+  return verifyConnectLink(rawUrl);
+}
+
+const REPLAYED = {
+  ok: false,
+  code: "replayed",
+  message: "This connect link was already used on this machine.",
+};
+
 // --- commands ---------------------------------------------------------------
 
 // Commands the webview handles in Rust (native dialogs, shell, window chrome).
@@ -179,6 +220,36 @@ const commands = {
   setDesktopBootstrapConfig: (input) => workspaceStore.setDesktopBootstrapConfig(input ?? {}),
   clearDesktopBootstrapConfig: () => workspaceStore.clearDesktopBootstrapConfig(),
   debugDesktopBootstrapConfig: () => workspaceStore.debugDesktopBootstrapConfig(),
+
+  connectLinkVerify: async (rawUrl) => {
+    const verified = await resolveConnectLink(String(rawUrl ?? ""), "preview");
+    if (verified.ok === false) return verified;
+    // Refuse a spent link before the user is ever shown a confirmation.
+    if (verified.transport === "signed" && (await replayGuard.has(verified.claims.jti))) return REPLAYED;
+    return verified;
+  },
+
+  connectLinkAccept: async (rawUrl) => {
+    // The page hands back the raw URL after confirming; claims shaped there are
+    // never trusted, so this verifies again from scratch.
+    const verified = await resolveConnectLink(String(rawUrl ?? ""), "exchange");
+    if (verified.ok === false) return verified;
+
+    if (verified.transport !== "exchange") {
+      if (await replayGuard.has(verified.claims.jti)) return REPLAYED;
+      // Consume before mutating. If the ledger cannot be written, fail closed
+      // and leave the existing bootstrap alone.
+      if (!(await replayGuard.remember(verified.claims.jti))) return REPLAYED;
+    }
+
+    const config = await persistConnectLinkBranding(verified.claims, {
+      persistBootstrap: (next) => workspaceStore.setDesktopBootstrapConfig(next),
+      // Applying the brand icon needs a native image; the spike skips it, which
+      // costs a logo and nothing else.
+      applyBrandIconUrl: async () => {},
+    });
+    return { ok: true, config };
+  },
 
   openworkServerInfo: () => openworkServerInfo(),
   runtimeBootstrap: () => ({ ok: true, openworkServer: openworkServerInfo() }),

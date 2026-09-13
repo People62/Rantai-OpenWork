@@ -18,5 +18,14 @@
   "bundle": {
     "active": false,
     "targets": []
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": [
+          "openwork"
+        ]
+      }
+    }
   }
 }

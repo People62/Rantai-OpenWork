@@ -301,6 +301,32 @@ mod tests {
     }
 }
 
+/// Hands received deep links to the page as Electron's preload did.
+///
+/// The interface listens for "openwork:deep-link-native" with the URLs in
+/// event.detail, then calls connectLinkVerify and connectLinkAccept over the
+/// bridge — and those two are served by the original connect-link.mjs, so none
+/// of its 497 lines of signature checking is reimplemented here.
+fn deliver_deep_links(app: &tauri::AppHandle, urls: &[String]) {
+    use tauri::Manager;
+
+    if urls.is_empty() {
+        return;
+    }
+    let Ok(detail) = serde_json::to_string(urls) else { return };
+    let js = format!(
+        r#"window.dispatchEvent(new CustomEvent("openwork:deep-link-native", {{ detail: {detail} }}))"#,
+    );
+
+    if let Some(webview) = app.get_webview_window("main") {
+        if let Err(error) = webview.eval(&js) {
+            eprintln!("[spike] deep link: {error}");
+        }
+    } else {
+        eprintln!("[spike] deep link arrived before the window: {urls:?}");
+    }
+}
+
 /// The preload equivalent. Electron's preload.mjs runs before the page; Tauri's
 /// initialization_script does the same, so the interface finds the bridge on
 /// its first read and needs no change at all.
@@ -423,12 +449,26 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_deep_link::init())
         .invoke_handler(tauri::generate_handler![desktop_native])
         .on_menu_event(|app, event| handle_menu_event(app, event.id().as_ref()))
         .setup(move |app| {
             use tauri::WebviewUrl;
 
             app.set_menu(build_menu(app.handle())?)?;
+
+            // Electron registers openwork:// with app.setAsDefaultProtocolClient
+            // and receives URLs through open-url on macOS and second-instance
+            // everywhere else. The plugin covers both shapes; what it hands back
+            // still has to reach the page under the name preload.mjs used.
+            {
+                use tauri_plugin_deep_link::DeepLinkExt;
+                let handle = app.handle().clone();
+                app.deep_link().on_open_url(move |event| {
+                    let urls: Vec<String> = event.urls().iter().map(|u| u.to_string()).collect();
+                    deliver_deep_links(&handle, &urls);
+                });
+            }
             tauri::WebviewWindowBuilder::new(
                 app,
                 "main",
