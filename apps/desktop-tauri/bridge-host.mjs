@@ -311,6 +311,11 @@ const commands = {
     return { received: true };
   },
 
+  __integrationProbeResult: (result) => {
+    console.error(`[bridge] integration probe: ${JSON.stringify(result)}`);
+    return { received: true };
+  },
+
   __architecture: () => ({
     platform: process.platform,
     arch: process.arch,

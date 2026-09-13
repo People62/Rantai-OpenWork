@@ -79,6 +79,43 @@ fn start_bridge(root: &PathBuf) -> (Child, BridgeReady) {
     panic!("the bridge host exited before reporting a port");
 }
 
+/// The scheme Electron registers as DESKTOP_PROTOCOL_SCHEME, declared for the
+/// plugin in tauri.conf.json and repeated here for the runtime calls.
+const DEEP_LINK_SCHEME: &str = "openwork";
+
+/// The shape desktop-integration-section.tsx reads.
+///
+/// Electron can say more: it reads back the entry it wrote and reports which
+/// fields drifted, so the interface can offer a repair. The plugin exposes no
+/// equivalent, so this reports whether the scheme is currently ours and leaves
+/// the issues list empty rather than inventing findings.
+fn desktop_integration_status(app: &tauri::AppHandle) -> serde_json::Value {
+    use tauri_plugin_deep_link::DeepLinkExt;
+
+    if !cfg!(any(target_os = "linux", windows)) {
+        return serde_json::json!({
+            "supported": false,
+            "state": "unsupported",
+            "ownership": "none",
+            "appImagePath": null,
+            "desktopEntryPath": null,
+            "handlerDesktopId": null,
+            "issues": [],
+        });
+    }
+
+    let registered = app.deep_link().is_registered(DEEP_LINK_SCHEME).unwrap_or(false);
+    serde_json::json!({
+        "supported": true,
+        "state": if registered { "integrated" } else { "not_integrated" },
+        "ownership": if registered { "openwork" } else { "none" },
+        "appImagePath": std::env::var("APPIMAGE").ok(),
+        "desktopEntryPath": null,
+        "handlerDesktopId": null,
+        "issues": [],
+    })
+}
+
 /// The native half of the bridge. Everything else is forwarded to the host.
 #[tauri::command]
 async fn desktop_native(
@@ -121,6 +158,27 @@ async fn desktop_native(
         // refuses unless the capability grants it; the probe proves the grant
         // took effect instead of leaving it to be discovered on first use.
         "__ipcProbe" => Ok(serde_json::json!({ "ok": true, "from": "rust" })),
+
+        // Electron ports 590 lines to write a .desktop entry and register the
+        // MIME handler. The deep-link plugin already does the same work — and on
+        // Windows writes the registry keys setAsDefaultProtocolClient would — so
+        // this is a call, not a port. What is lost is the repair diagnostics:
+        // Electron inspects the entry it wrote and reports which parts drifted.
+        "desktopIntegrationStatus" => Ok(desktop_integration_status(&app)),
+        "desktopIntegrationInstall" => {
+            use tauri_plugin_deep_link::DeepLinkExt;
+            app.deep_link()
+                .register(DEEP_LINK_SCHEME)
+                .map_err(|error| error.to_string())?;
+            Ok(desktop_integration_status(&app))
+        }
+        "desktopIntegrationRemove" => {
+            use tauri_plugin_deep_link::DeepLinkExt;
+            app.deep_link()
+                .unregister(DEEP_LINK_SCHEME)
+                .map_err(|error| error.to_string())?;
+            Ok(desktop_integration_status(&app))
+        }
         // Deliberately inert for now: the gate is workspace creation, and
         // reporting the gap beats a silent no-op.
         other => Err(format!("Tauri native bridge: {other} is not implemented yet")),
@@ -337,7 +395,8 @@ fn init_script(ready: &BridgeReady, meta: &str) -> String {
   var TOKEN = "{token}";
   var NATIVE = ["pickDirectory", "pickFile", "saveFile", "__openPath", "__revealItemInDir",
                 "__setZoomFactor", "__setNativeTheme", "__setApplicationMenuVisible",
-                "setWindowDecorations", "desktopNotificationShow"];
+                "setWindowDecorations", "desktopNotificationShow",
+                "desktopIntegrationStatus", "desktopIntegrationInstall", "desktopIntegrationRemove"];
 
   function native(command, args) {{
     return window.__TAURI_INTERNALS__.invoke("desktop_native", {{ command: command, args: args }});
@@ -381,6 +440,26 @@ fn init_script(ready: &BridgeReady, meta: &str) -> String {
     }});
   }}
 
+  // Desktop integration cannot be reached over the bridge — it is a Rust
+  // command — so an opt-in probe drives the round trip instead: read, install,
+  // read, remove, read.
+  if ({probe_integration}) {{
+    (function () {{
+      var read = function () {{ return native("desktopIntegrationStatus", []); }};
+      read().then(function (before) {{
+        return native("desktopIntegrationInstall", []).then(read).then(function (after) {{
+          return native("desktopIntegrationRemove", []).then(read).then(function (final) {{
+            return host("__integrationProbeResult", [{{
+              before: before.state, afterInstall: after.state, afterRemove: final.state,
+            }}]);
+          }});
+        }});
+      }}).catch(function (error) {{
+        return host("__integrationProbeResult", [{{ error: String(error) }}]);
+      }});
+    }})();
+  }}
+
   native("__ipcProbe", []).then(function (result) {{
     return host("__ipcProbeResult", [{{ ok: true, result: result }}]);
   }}).catch(function (error) {{
@@ -418,6 +497,7 @@ fn init_script(ready: &BridgeReady, meta: &str) -> String {
         token = ready.token,
         meta = meta,
         probe_dialog = std::env::var("RANTAI_SPIKE_PROBE_DIALOG").as_deref() == Ok("1"),
+        probe_integration = std::env::var("RANTAI_SPIKE_PROBE_INTEGRATION").as_deref() == Ok("1"),
     )
 }
 
