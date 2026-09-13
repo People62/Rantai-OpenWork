@@ -127,6 +127,180 @@ async fn desktop_native(
     }
 }
 
+/// The native application menu.
+///
+/// Mirrors apps/desktop/electron/app-menu.mjs: same items, same shortcuts, and
+/// the same four events dispatched into the page — the interface already listens
+/// for them, so nothing on the React side changes.
+///
+/// Tauri supplies the standard items (undo, copy, quit …) as predefined roles.
+/// What it has no equivalent for is macOS's paste-and-match-style, delete and
+/// Speech submenu; those are left out rather than hand-rolled.
+fn build_menu(app: &tauri::AppHandle) -> tauri::Result<tauri::menu::Menu<tauri::Wry>> {
+    use tauri::menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder};
+
+    let settings = MenuItemBuilder::with_id("open-settings", "Settings…")
+        .accelerator(if cfg!(target_os = "macos") { "CmdOrCtrl+," } else { "Ctrl+," })
+        .build(app)?;
+    let toggle_sidebar = MenuItemBuilder::with_id("toggle-sidebar", "Toggle Sidebar")
+        .accelerator("CmdOrCtrl+B")
+        .build(app)?;
+    let zoom_reset = MenuItemBuilder::with_id("zoom-reset", "Actual Size")
+        .accelerator("CmdOrCtrl+0")
+        .build(app)?;
+    let zoom_in = MenuItemBuilder::with_id("zoom-in", "Zoom In")
+        .accelerator("CmdOrCtrl+Plus")
+        .build(app)?;
+    let zoom_out = MenuItemBuilder::with_id("zoom-out", "Zoom Out")
+        .accelerator("CmdOrCtrl+-")
+        .build(app)?;
+    let check_updates = MenuItemBuilder::with_id("check-updates", "Check for Updates…").build(app)?;
+    let docs = MenuItemBuilder::with_id("docs", "Docs").build(app)?;
+
+    let mut menu = MenuBuilder::new(app);
+
+    // On macOS the first submenu is the application menu, and Settings and
+    // Check for Updates belong there rather than in File and Help.
+    if cfg!(target_os = "macos") {
+        let app_menu = SubmenuBuilder::new(app, "Rantai")
+            .about(None)
+            .separator()
+            .item(&check_updates)
+            .item(&settings)
+            .separator()
+            .services()
+            .separator()
+            .hide()
+            .hide_others()
+            .show_all()
+            .separator()
+            .quit()
+            .build()?;
+        menu = menu.item(&app_menu);
+    }
+
+    let mut file = SubmenuBuilder::new(app, "File");
+    if !cfg!(target_os = "macos") {
+        file = file.item(&settings).separator();
+    }
+    let file = file.close_window().build()?;
+
+    let edit = SubmenuBuilder::new(app, "Edit")
+        .undo()
+        .redo()
+        .separator()
+        .cut()
+        .copy()
+        .paste()
+        .select_all()
+        .build()?;
+
+    let view = SubmenuBuilder::new(app, "View")
+        .item(&toggle_sidebar)
+        .separator()
+        .item(&zoom_reset)
+        .item(&zoom_in)
+        .item(&zoom_out)
+        .separator()
+        .fullscreen()
+        .build()?;
+
+    let mut window = SubmenuBuilder::new(app, "Window").minimize().maximize();
+    if cfg!(target_os = "macos") {
+        window = window.separator().bring_all_to_front();
+    }
+    let window = window.separator().close_window().build()?;
+
+    let mut help = SubmenuBuilder::new(app, "Help");
+    if !cfg!(target_os = "macos") {
+        help = help.item(&check_updates);
+    }
+    let help = help.item(&docs).build()?;
+
+    menu.item(&file)
+        .item(&edit)
+        .item(&view)
+        .item(&window)
+        .item(&help)
+        .build()
+}
+
+/// The script a menu id dispatches into the page.
+///
+/// Split out from the click handler because this is the half that can be
+/// silently wrong: an event name that no longer matches what the interface
+/// listens for produces a menu item that does nothing, with no error anywhere.
+/// A GTK menu cannot be clicked from a headless machine, so this is the part
+/// worth testing instead.
+fn menu_event_script(id: &str) -> Option<String> {
+    let dispatch = |name: &str| Some(format!(r#"window.dispatchEvent(new Event("{name}"))"#));
+
+    match id {
+        "open-settings" => dispatch("openwork:native-menu:open-settings"),
+        "toggle-sidebar" => dispatch("openwork:native-menu:toggle-sidebar"),
+        "check-updates" => dispatch("openwork:native-menu:check-updates"),
+        "zoom-reset" | "zoom-in" | "zoom-out" => {
+            // The interface reads this from event.detail, and Electron sends
+            // "reset" | "in" | "out".
+            let action = id.trim_start_matches("zoom-");
+            Some(format!(
+                r#"window.dispatchEvent(new CustomEvent("openwork:native-menu:zoom", {{ detail: "{action}" }}))"#,
+            ))
+        }
+        // No opener plugin in the spike yet; the interface routes external links
+        // itself, so hand it the URL the same way a link would.
+        "docs" => Some(r#"window.open("https://openworklabs.com/docs", "_blank")"#.to_string()),
+        _ => None,
+    }
+}
+
+/// Menu clicks reach the interface as the events Electron's preload dispatched.
+/// Keeping the names identical is what makes the React side portable.
+fn handle_menu_event(app: &tauri::AppHandle, id: &str) {
+    use tauri::Manager;
+
+    let Some(js) = menu_event_script(id) else { return };
+
+    if let Some(webview) = app.get_webview_window("main") {
+        if let Err(error) = webview.eval(&js) {
+            eprintln!("[spike] menu {id}: {error}");
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::menu_event_script;
+
+    /// The names the interface listens for, copied from preload.mjs. If these
+    /// drift, every menu item goes quiet without failing.
+    #[test]
+    fn dispatches_the_events_the_interface_listens_for() {
+        for (id, expected) in [
+            ("open-settings", "openwork:native-menu:open-settings"),
+            ("toggle-sidebar", "openwork:native-menu:toggle-sidebar"),
+            ("check-updates", "openwork:native-menu:check-updates"),
+        ] {
+            let script = menu_event_script(id).expect(id);
+            assert!(script.contains(expected), "{id} dispatched {script}");
+        }
+    }
+
+    #[test]
+    fn zoom_carries_the_action_electron_sends() {
+        for (id, action) in [("zoom-reset", "reset"), ("zoom-in", "in"), ("zoom-out", "out")] {
+            let script = menu_event_script(id).expect(id);
+            assert!(script.contains("openwork:native-menu:zoom"), "{id}: {script}");
+            assert!(script.contains(&format!(r#"detail: "{action}""#)), "{id}: {script}");
+        }
+    }
+
+    #[test]
+    fn unknown_ids_do_nothing() {
+        assert!(menu_event_script("no-such-item").is_none());
+    }
+}
+
 /// The preload equivalent. Electron's preload.mjs runs before the page; Tauri's
 /// initialization_script does the same, so the interface finds the bridge on
 /// its first read and needs no change at all.
@@ -250,8 +424,11 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![desktop_native])
+        .on_menu_event(|app, event| handle_menu_event(app, event.id().as_ref()))
         .setup(move |app| {
             use tauri::WebviewUrl;
+
+            app.set_menu(build_menu(app.handle())?)?;
             tauri::WebviewWindowBuilder::new(
                 app,
                 "main",
