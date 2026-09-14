@@ -1,13 +1,14 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The spike loads the interface from openwork-server, so IPC has to be granted to that remote origin explicitly.",
+  "description": "The interface is served by openwork-server, so IPC arrives from a remote origin and has to be granted explicitly. The runtime manager picks its own port, so the grant covers loopback rather than one number.",
   "windows": [
     "main"
   ],
   "remote": {
     "urls": [
-      "http://127.0.0.1:8799"
+      "http://127.0.0.1:*",
+      "http://localhost:*"
     ]
   },
   "permissions": [

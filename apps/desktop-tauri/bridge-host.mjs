@@ -28,9 +28,11 @@ import {
 } from "../desktop/electron/connect-link.mjs";
 import { persistConnectLinkBranding } from "../desktop/electron/connect-link-branding.mjs";
 import { resolveConnectLinkPublicKeys } from "../desktop/electron/connect-link-keys.mjs";
+import { createRuntimeManager } from "../desktop/electron/runtime.mjs";
 import { createWorkspaceStore } from "../desktop/electron/workspace-store.mjs";
 // The server already owns skill CRUD, and bun imports TypeScript directly — so
 // this reuses a proper module instead of extracting one out of main.mjs.
+import { deleteCommand, listCommands, upsertCommand } from "../server/src/commands.ts";
 import { deleteSkill, listSkills, upsertSkill } from "../server/src/skills.ts";
 import { resolveDesktopDistribution } from "../desktop/electron/desktop-distribution.mjs";
 
@@ -38,7 +40,6 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "../..");
 
 const SERVER_HOST = "127.0.0.1";
-const SERVER_PORT = 8799;
 
 // Smoke mode: run unattended, decide whether the webview actually brought the
 // interface up, and exit with a status CI can read. The gate this answers is
@@ -81,6 +82,11 @@ const distribution = resolveDesktopDistribution({
   environmentFlavor: process.env.OPENWORK_DESKTOP_DISTRIBUTION,
 });
 
+/// The desktop bridge says "project"; the server module says "workspace".
+function commandScope(raw) {
+  return String(raw ?? "").trim() === "global" ? "global" : "workspace";
+}
+
 /// main.mjs refuses anything that is not kebab-case before touching the disk,
 /// because the name becomes a directory. Same rule here.
 function skillNameGuard(raw) {
@@ -101,83 +107,44 @@ async function ensureSkillsDir(projectDir) {
 
 // --- the managed openwork-server -------------------------------------------
 
-let serverChild = null;
+/// The real runtime manager, instead of the hand-rolled server this spike
+/// started with.
+///
+/// runtime.mjs is 2,304 lines and touches exactly two Electron APIs —
+/// app.getPath and app.isPackaged — so the same shim that carries
+/// workspace-store carries this. What it brings is everything the spike was
+/// faking: engine lifecycle, the managed opencode binary, port stickiness,
+/// certificate handling, and a lock that serialises start/stop/restart so
+/// concurrent calls do not kill each other's servers.
+///
+/// It also runs openwork-server in-process, the way Electron does, which drops
+/// one of the two bun processes the memory measurements counted.
+const runtimeManager = createRuntimeManager({
+  app: fakeApp,
+  desktopRoot: path.join(ROOT, "apps/desktop"),
+  listLocalWorkspacePaths: () => workspaceStore.listLocalWorkspacePaths(),
+});
 
-/// runtime.mjs hands openwork-server the workspace paths it should serve. The
-/// store is the source of truth for those, so the config is rewritten from it
-/// on every start; otherwise a workspace created in the interface stays
-/// invisible to the server until the next launch.
-async function writeServerConfig(configPath) {
-  const paths = await workspaceStore.listLocalWorkspacePaths();
-  writeFileSync(configPath, JSON.stringify({
-    authorizedRoots: paths,
-    workspaces: paths.map((entry) => ({ path: entry })),
-  }, null, 2));
-  return paths;
+// static-ui.ts reads the web root from the environment rather than an option,
+// so this has to be set before the embedded server starts.
+process.env.OPENWORK_WEB_ROOT = path.join(ROOT, "apps/app/dist");
+
+/// Electron starts the engine when the interface asks. The spike starts it at
+/// boot, because nothing here drives onboarding.
+async function startRuntime() {
+  const workspaces = await workspaceStore.listLocalWorkspacePaths();
+  const projectDir = workspaces[0] ?? ROOT;
+  try {
+    await runtimeManager.engineStart(projectDir, {});
+    const info = await runtimeManager.openworkServerInfo();
+    console.error(`[bridge] runtime up on ${info.baseUrl ?? "(no url)"}`);
+    return info;
+  } catch (error) {
+    console.error(`[bridge] engineStart failed: ${error?.message ?? error}`);
+    return null;
+  }
 }
 
-function startOpenworkServer() {
-  const dist = path.join(ROOT, "apps/app/dist");
-  const config = path.join(USER_DATA, "server.json");
-
-  serverChild = spawn(
-    "bun",
-    [
-      "--conditions=development",
-      path.join(ROOT, "apps/server/src/cli.ts"),
-      "--port", String(SERVER_PORT),
-      "--host", SERVER_HOST,
-      "--config", config,
-    ],
-    {
-      cwd: ROOT,
-      stdio: "inherit",
-      env: {
-        ...process.env,
-        OPENWORK_WEB_ROOT: dist,
-        OPENWORK_TOKEN: SERVER_TOKEN,
-        OPENWORK_HOST_TOKEN: SERVER_HOST_TOKEN,
-        // Without these the server never starts the OpenCode engine and every
-        // /opencode/* route answers opencode_unconfigured. Skipped under smoke:
-        // the question there is whether the webview renders, and CI runners
-        // have no opencode binary to manage.
-        ...(SMOKE ? {} : {
-          OPENWORK_MANAGE_OPENCODE: "1",
-          OPENWORK_OPENCODE_BIN: process.env.OPENWORK_OPENCODE_BIN ?? "opencode",
-        }),
-      },
-    },
-  );
-
-  serverChild.on("exit", (code) => {
-    console.error(`[bridge] openwork-server exited with ${code}`);
-    serverChild = null;
-  });
-}
-
-function openworkServerInfo() {
-  const baseUrl = `http://${SERVER_HOST}:${SERVER_PORT}`;
-  return {
-    running: Boolean(serverChild && serverChild.exitCode === null && !serverChild.killed),
-    engineRollover: false,
-    remoteAccessEnabled: false,
-    host: SERVER_HOST,
-    port: SERVER_PORT,
-    baseUrl,
-    connectUrl: null,
-    mdnsUrl: null,
-    lanUrl: null,
-    clientToken: SERVER_TOKEN,
-    ownerToken: SERVER_TOKEN,
-    hostToken: SERVER_HOST_TOKEN,
-    managedOpencodeBinPath: null,
-    managedOpencodeBinSource: null,
-    pid: serverChild?.pid ?? null,
-    lastStdout: "",
-    lastStderr: "",
-    managedOpencodeExecution: null,
-  };
-}
 
 // --- deep links ---------------------------------------------------------------
 
@@ -294,6 +261,19 @@ const commands = {
     return { ok: true, status: 0, stdout: `Installed skill to ${destination}`, stderr: "" };
   },
 
+  // --- opencode commands ------------------------------------------------------
+
+  // The server's own module again. It takes "workspace" | "global" where the
+  // desktop bridge says "project"; the interface sends the desktop spelling.
+  opencodeCommandList: (input = {}) =>
+    listCommands(String(input.projectDir ?? "").trim(), commandScope(input.scope)),
+
+  opencodeCommandWrite: (input = {}) =>
+    upsertCommand(String(input.projectDir ?? "").trim(), input.command ?? {}),
+
+  opencodeCommandDelete: (input = {}) =>
+    deleteCommand(String(input.projectDir ?? "").trim(), String(input.name ?? "").trim()),
+
   // --- workspace config -------------------------------------------------------
 
   workspaceExportConfig: (input) => workspaceStore.exportConfig(input ?? {}),
@@ -329,37 +309,24 @@ const commands = {
     return { ok: true, config };
   },
 
-  openworkServerInfo: () => openworkServerInfo(),
   runtimeBootstrap: () => ({ ok: true, openworkServer: openworkServerInfo() }),
   runtimeStatus: () => ({ ok: true, openworkServer: openworkServerInfo() }),
 
-  engineInfo: () => ({
-    running: Boolean(serverChild),
-    runtime: "managed",
-    managedByServer: true,
-    baseUrl: null,
-    projectDir: null,
-    hostname: SERVER_HOST,
-    port: null,
-    opencodeUsername: null,
-    opencodePassword: null,
-    opencodeBinPath: null,
-    opencodeBinSource: null,
-    lifecycleState: serverChild ? "running" : "stopped",
-  }),
+  // --- engine and runtime -----------------------------------------------------
 
-  // The server is spawned here rather than by runtime.mjs, so a restart is a
-  // restart of that child. Same effect for the interface; far less surface.
-  openworkServerRestart: async () => {
-    if (serverChild) {
-      serverChild.kill();
-      await new Promise((resolve) => setTimeout(resolve, 800));
-    }
-    await writeServerConfig(path.join(USER_DATA, "server.json"));
-    startOpenworkServer();
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    return openworkServerInfo();
-  },
+  engineInfo: () => runtimeManager.engineInfo(),
+  runtimeStatus: () => runtimeManager.runtimeStatus(),
+  runtimeBootstrap: () => runtimeManager.runtimeStatus(),
+  engineStart: (projectDir, options) => runtimeManager.engineStart(String(projectDir ?? "").trim(), options ?? {}),
+  engineStop: () => runtimeManager.engineStop(),
+  engineRestart: (options) => runtimeManager.engineRestart(options ?? {}),
+  engineDoctor: (input) => runtimeManager.engineDoctor(input),
+  engineInstall: () => runtimeManager.engineInstall(),
+  prepareFreshRuntime: () => runtimeManager.prepareFreshRuntime(),
+  opencodeMcpAuth: (name) => runtimeManager.opencodeMcpAuth(String(name ?? "").trim()),
+  sandboxCleanupOpenworkContainers: () => runtimeManager.sandboxCleanupOpenworkContainers(),
+  openworkServerInfo: () => runtimeManager.openworkServerInfo(),
+  openworkServerRestart: (options) => runtimeManager.openworkServerRestart(options ?? {}),
 
   appBuildInfo: () => ({
     version: fakeApp.getVersion(),
@@ -467,7 +434,7 @@ function finishSmoke(code, reason) {
   try {
     writeFileSync(path.join(USER_DATA, "smoke.json"), JSON.stringify(report, null, 2));
   } catch {}
-  if (serverChild) serverChild.kill();
+  runtimeManager.dispose().catch(() => {});
   process.exit(code);
 }
 
@@ -479,6 +446,19 @@ if (SMOKE) {
 }
 
 // --- HTTP -------------------------------------------------------------------
+
+/// Echoes an Origin header only when it is loopback, so a stray page on the
+/// wider network cannot talk its way past CORS.
+function loopbackOrigin(origin) {
+  if (typeof origin !== "string" || !origin) return null;
+  try {
+    const { hostname, protocol } = new URL(origin);
+    const local = hostname === "127.0.0.1" || hostname === "localhost" || hostname === "::1";
+    return local && protocol === "http:" ? origin : null;
+  } catch {
+    return null;
+  }
+}
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
@@ -495,7 +475,10 @@ const server = createServer(async (req, res) => {
   // The page is served by openwork-server on another port, so every call here
   // is cross-origin. Loopback only, and the bearer below is the real gate.
   const cors = {
-    "access-control-allow-origin": `http://${SERVER_HOST}:${SERVER_PORT}`,
+    // The page's port is chosen by the runtime manager, so the origin is
+    // echoed back when it is loopback rather than pinned to one number. The
+    // bearer below is the actual gate; this only satisfies the browser.
+    "access-control-allow-origin": loopbackOrigin(req.headers.origin) ?? "null",
     "access-control-allow-headers": "authorization, content-type",
     "access-control-allow-methods": "POST, GET, OPTIONS",
   };
@@ -512,7 +495,7 @@ const server = createServer(async (req, res) => {
     return send(200, {
       desktopBootstrap: workspaceStore.readDesktopBootstrapConfigSync(),
       distribution,
-      serverInfo: openworkServerInfo(),
+      serverInfo: await runtimeManager.openworkServerInfo(),
     });
   }
 
@@ -548,12 +531,14 @@ const server = createServer(async (req, res) => {
   }
 });
 
-await writeServerConfig(path.join(USER_DATA, "server.json"));
-startOpenworkServer();
+const runtimeInfo = await startRuntime();
 
 server.listen(0, SERVER_HOST, () => {
   const { port } = server.address();
-  const ready = { port, token: BRIDGE_TOKEN, appUrl: `http://${SERVER_HOST}:${SERVER_PORT}/` };
+  // The runtime manager chooses the port, so the window is told where the
+  // server actually landed rather than where the spike used to put it.
+  const appUrl = runtimeInfo?.baseUrl ? `${runtimeInfo.baseUrl.replace(/\/$/, "")}/` : null;
+  const ready = { port, token: BRIDGE_TOKEN, appUrl };
   // Rust reads this line to build the init script.
   console.log(`[bridge] ready ${JSON.stringify(ready)}`);
   // And a manifest on disk, so a running spike can be inspected without
@@ -562,7 +547,7 @@ server.listen(0, SERVER_HOST, () => {
 });
 
 function shutdown() {
-  if (serverChild) serverChild.kill();
+  runtimeManager.dispose().catch(() => {});
   server.close();
   process.exit(0);
 }
