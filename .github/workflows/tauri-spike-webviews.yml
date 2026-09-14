@@ -105,7 +105,7 @@ jobs:
       # apps/server/dist/embedded.js, which is a build artefact and so absent on
       # a fresh checkout. Without it the runtime manager has nothing to start.
       - name: Build the server
-        run: pnpm --filter @openwork/server build
+        run: pnpm --fail-if-no-match --filter openwork-server build
 
       - name: Build the interface
         run: pnpm --filter @openwork/app build
@@ -218,7 +218,7 @@ jobs:
       # apps/server/dist/embedded.js, which is a build artefact and so absent on
       # a fresh checkout. Without it the runtime manager has nothing to start.
       - name: Build the server
-        run: pnpm --filter @openwork/server build
+        run: pnpm --fail-if-no-match --filter openwork-server build
 
       - name: Build the interface
         run: pnpm --filter @openwork/app build

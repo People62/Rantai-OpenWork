@@ -144,7 +144,7 @@ async function startRuntime() {
     // null url only moves the failure somewhere less legible: Rust answered the
     // first version of this with a serde type error rather than the cause.
     console.error(`[bridge] engineStart failed: ${error?.message ?? error}`);
-    console.error("[bridge] the embedded server bundle is built by `pnpm --filter @openwork/server build`");
+    console.error("[bridge] the embedded server bundle is built by `pnpm --filter openwork-server build`");
     process.exit(1);
   }
 }
