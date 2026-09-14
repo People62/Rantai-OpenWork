@@ -101,6 +101,12 @@ jobs:
 
       # The bridge makes the app a desktop runtime, so this is the ordinary
       # desktop build — not the web build stage 2 needed.
+      # The bridge host starts openwork-server in-process from
+      # apps/server/dist/embedded.js, which is a build artefact and so absent on
+      # a fresh checkout. Without it the runtime manager has nothing to start.
+      - name: Build the server
+        run: pnpm --filter @openwork/server build
+
       - name: Build the interface
         run: pnpm --filter @openwork/app build
 
@@ -207,6 +213,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # The bridge host starts openwork-server in-process from
+      # apps/server/dist/embedded.js, which is a build artefact and so absent on
+      # a fresh checkout. Without it the runtime manager has nothing to start.
+      - name: Build the server
+        run: pnpm --filter @openwork/server build
 
       - name: Build the interface
         run: pnpm --filter @openwork/app build
