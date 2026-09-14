@@ -104,6 +104,15 @@ jobs:
       # The bridge host starts openwork-server in-process from
       # apps/server/dist/embedded.js, which is a build artefact and so absent on
       # a fresh checkout. Without it the runtime manager has nothing to start.
+      # OpenCode is a 183MB binary the repo does not track, fetched from its
+      # release by this script and checked against the sha256 in
+      # constants.json. A developer machine has one from an earlier setup, so
+      # its absence is invisible locally: three rounds of hiding OpenCode from
+      # PATH and HOME failed to reproduce the CI failure, because the runtime
+      # was resolving the sidecar the whole time.
+      - name: Prepare the OpenCode sidecar
+        run: pnpm --fail-if-no-match --filter @openwork/desktop prepare:sidecar
+
       - name: Build the server
         run: pnpm --fail-if-no-match --filter openwork-server build
 
@@ -217,6 +226,15 @@ jobs:
       # The bridge host starts openwork-server in-process from
       # apps/server/dist/embedded.js, which is a build artefact and so absent on
       # a fresh checkout. Without it the runtime manager has nothing to start.
+      # OpenCode is a 183MB binary the repo does not track, fetched from its
+      # release by this script and checked against the sha256 in
+      # constants.json. A developer machine has one from an earlier setup, so
+      # its absence is invisible locally: three rounds of hiding OpenCode from
+      # PATH and HOME failed to reproduce the CI failure, because the runtime
+      # was resolving the sidecar the whole time.
+      - name: Prepare the OpenCode sidecar
+        run: pnpm --fail-if-no-match --filter @openwork/desktop prepare:sidecar
+
       - name: Build the server
         run: pnpm --fail-if-no-match --filter openwork-server build
 
