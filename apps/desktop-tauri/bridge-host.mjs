@@ -143,9 +143,42 @@ async function startRuntime() {
     // Nothing downstream works without a server, and reporting ready with a
     // null url only moves the failure somewhere less legible: Rust answered the
     // first version of this with a serde type error rather than the cause.
-    console.error(`[bridge] engineStart failed: ${error?.message ?? error}`);
+    console.error("[bridge] engineStart failed:");
+    reportError(error);
     console.error("[bridge] the embedded server bundle is built by `pnpm --filter openwork-server build`");
     process.exit(1);
+  }
+}
+
+// Prints the whole chain, not just the outermost message.
+//
+// The embedded server wraps a startup failure whose cleanup also failed in an
+// AggregateError, and the runtime attaches causes. Printing only .message threw
+// away every one of those: CI reported "Managed OpenCode process did not exit
+// after SIGKILL" — raised while unwinding — for three rounds, while the failure
+// that started the unwind was never shown at all. A twenty-minute six-runner
+// build is far too slow to diagnose by guessing.
+function reportError(error, depth = 0) {
+  const indent = "  ".repeat(depth + 1);
+  if (!(error instanceof Error)) {
+    console.error(`${indent}${String(error)}`);
+    return;
+  }
+
+  console.error(`${indent}${error.name}: ${error.message}`);
+  for (const key of ["code", "errno", "syscall", "path", "spawnargs"]) {
+    if (error[key] !== undefined) console.error(`${indent}  ${key}: ${JSON.stringify(error[key])}`);
+  }
+
+  const stack = (error.stack ?? "").split("\n").slice(1, 6);
+  for (const line of stack) console.error(`${indent}  ${line.trim()}`);
+
+  // AggregateError carries the real cause alongside the cleanup failure, and
+  // which of the two lands in .message is down to the order they were thrown.
+  for (const nested of error.errors ?? []) reportError(nested, depth + 1);
+  if (error.cause) {
+    console.error(`${indent}caused by:`);
+    reportError(error.cause, depth + 1);
   }
 }
 
